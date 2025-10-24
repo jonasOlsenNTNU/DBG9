@@ -1,0 +1,36 @@
+# --- Python build artifacts ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+env/
+venv/
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Testing / tooling ---
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+coverage.xml
+htmlcov/
+
+# --- Editor / IDE settings ---
+.vscode/
+.idea/
+
+# --- Panel app cache ---
+.cache/
+
+# --- Data Files ---
+data/*
+!data/.gitkeep
