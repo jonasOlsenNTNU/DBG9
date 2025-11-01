@@ -1,0 +1,52 @@
+/* Top-level layout */
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    background-color: #f9fafb;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.main-sidebar {
+    flex: 0 0 12%;      /* ~12% of viewport width */
+    max-width: 300px;
+    min-width: 200px;
+    overflow-y: auto;
+    background-color: #f3f4f6;
+    padding: 1rem;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Main content area */
+.main-content-area {
+    flex: 1;             /* fill remaining space */
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: #ffffff;
+}
+
+/* Optional: spacing between sidebar and main content */
+.main-layout > .main-sidebar {
+    margin-right: 1rem;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+    .main-layout {
+        flex-direction: column;
+    }
+
+    .main-sidebar,
+    .main-content-area {
+        flex: 1 0 100%;
+        max-width: 100%;
+        min-width: auto;
+    }
+
+    .main-content-area {
+        margin-top: 1rem;
+    }
+}

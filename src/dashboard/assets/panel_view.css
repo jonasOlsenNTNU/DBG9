@@ -1,0 +1,12 @@
+.panel-card {
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    background-color: white !important;
+    padding: 1rem !important;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

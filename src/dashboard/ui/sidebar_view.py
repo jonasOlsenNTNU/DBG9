@@ -1,6 +1,7 @@
 # src/dashboard/ui/sidebar_view.py
 import panel as pn
 import pandas as pd
+from ..utils.load_css import load_css
 
 pn.extension('tabulator')
 
@@ -13,10 +14,19 @@ class SidebarView:
     Also provides update_dataset_list(datasets_dict) to refresh options.
     """
     def __init__(self):
+        load_css("sidebar_view.css")
+
+        # Create objects to put in panel (widgets)
         self.file_input = pn.widgets.FileInput(accept=".csv", multiple=False)
         self.dataset_select = pn.widgets.Select(name="Loaded datasets", options=[])
         self.remove_button = pn.widgets.Button(name="Remove dataset", button_type="warning", disabled=True)
         self.new_panel_button = pn.widgets.Button(name="New Panel", button_type="primary")
+
+        # Apply CSS to widgets
+        self.file_input.css_classes = ["sidebar-file-input"]
+        self.dataset_select.css_classes = ["sidebar-dataset-select"]
+        self.remove_button.css_classes = ["sidebar-remove-button"]
+        self.new_panel_button.css_classes = ["sidebar-new-panel-button"]
 
         # internal callback holders
         self._upload_cbs = []
@@ -30,17 +40,17 @@ class SidebarView:
         self.remove_button.on_click(self._handle_remove)
         self.new_panel_button.on_click(self._handle_new_panel)
 
+        # Create SidebarView Panel
         self._panel = pn.Column(
-            pn.pane.Markdown("## 📁 Datasets"),
+            pn.pane.Markdown("## 📁 Datasets", css_classes=["sidebar-header"]),
             self.file_input,
-            pn.layout.Spacer(height=6),
-            pn.pane.Markdown("### Available"),
+            pn.pane.Markdown("### Available", css_classes=["sidebar-subheader"]),
             self.dataset_select,
             self.remove_button,
             pn.layout.Divider(),
             self.new_panel_button,
             sizing_mode="stretch_width",
-            width=260,
+            css_classes=["sidebar-container"],
         )
 
     # -------------------------

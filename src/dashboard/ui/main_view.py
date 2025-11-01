@@ -3,15 +3,22 @@ import panel as pn
 from .sidebar_view import SidebarView
 from .dataset_view import DatasetView
 from .panel_creation_dialog import PanelCreationDialog
+from ..utils.load_css import load_css
 
 pn.extension('tabulator')
 
 class MainView:
     def __init__(self, registry=None):
+        load_css("main_view.css")
+
+        # Create objects (widgets) to put in panel.
         self.sidebar = SidebarView()
         self.dataset_view = DatasetView()
         self.panels_area = pn.Column(sizing_mode="stretch_both")
         self.creation_dialog = PanelCreationDialog(registry)
+
+        #Add CSS for widgets.
+        self.sidebar._panel.css_classes.append("main-sidebar")
 
         header = pn.pane.Markdown("# Data Dashboard", sizing_mode="stretch_width")
 
@@ -23,9 +30,15 @@ class MainView:
             self.panels_area,
             self.creation_dialog.dialog,
             sizing_mode="stretch_both",
+            css_classes=["main-content-area"],
         )
 
-        self._layout = pn.Row(self.sidebar.view(), pn.layout.Spacer(width=10), main_area, sizing_mode="stretch_both")
+        self._layout = pn.Row(
+            self.sidebar.view(), 
+            main_area, 
+            sizing_mode="stretch_both",
+            css_classes=["main-layout"]
+            )
 
     def add_panel(self, panel_view):
         self.panels_area.append(panel_view.layout)

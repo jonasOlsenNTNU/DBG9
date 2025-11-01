@@ -1,9 +1,12 @@
 # src/dashboard/ui/panel_view.py
 import panel as pn
+from ..utils.load_css import load_css
 
 class PanelView:
     """Visual container for a single panel plot, with a close button."""
     def __init__(self, panel_id: str, title: str):
+        load_css("panel_view.css")
+
         self.panel_id = panel_id
         self.title = title
         self.close_button = pn.widgets.Button(name="✖", button_type="danger", width=40)

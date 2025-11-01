@@ -1,0 +1,48 @@
+
+/* Sidebar container layout */
+.sidebar-container {
+    background-color: #f3f4f6;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    width: 40rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Headers */
+.sidebar-header {
+    color: #1f2937;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-subheader {
+    color: #4b5563;
+    font-size: 1rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Widgets */
+.sidebar-file-input,
+.sidebar-dataset-select {
+    width: 100%;
+}
+
+/* Buttons */
+.sidebar-remove-button {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-new-panel-button {
+    background-color: #16a34a !important;
+    border-color: #16a34a !important;
+    color: white !important;
+    font-weight: 500;
+    border-radius: 6px !important;
+    width: 100%;
+}
