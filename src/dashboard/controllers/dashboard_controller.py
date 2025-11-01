@@ -1,63 +1,60 @@
 # src/dashboard/controllers/dashboard_controller.py
 from ..data.dataset_registry import DatasetRegistry
-from ..data.data_loader import load_csv, Dataset
+from ..data.data_loader import load_csv
 from ..ui.main_view import MainView
+from .panel_controller import PanelController
 import tempfile, os
 
 class DashboardController:
-    """
-    Orchestrates DatasetRegistry and Views.
-    """
     def __init__(self):
         self.registry = DatasetRegistry()
-        self.view = MainView()
+        self.view = MainView(self.registry)
+        self.panel_controllers = []
 
-        # wire registry -> view
+        # Wire registry and sidebar events
         self.registry.on_change(self.view.sidebar.update_dataset_list)
-
-        # wire view events -> controller handlers
         self.view.sidebar.on_upload(self.handle_upload)
         self.view.sidebar.on_select(self.handle_select)
         self.view.sidebar.on_remove(self.handle_remove)
-        self.view.sidebar.on_new_panel(self.handle_new_panel)  # placeholder for next milestone
+        self.view.sidebar.on_new_panel(self.handle_new_panel)
 
-    # ---------------------------
-    # Event handlers
-    # ---------------------------
-    def handle_upload(self, file_bytes: bytes, filename: str):
-        """
-        Save uploaded bytes to temp file and load dataset via load_csv.
-        """
-        if file_bytes is None or filename is None:
+        # Wire panel creation dialog
+        self.view.creation_dialog.on_submit(self.handle_panel_created)
+
+    # ---------------------------------------------------
+    def handle_upload(self, file_bytes, filename):
+        if not file_bytes or not filename:
             return
-        tmpdir = tempfile.gettempdir()
-        safe_path = os.path.join(tmpdir, filename)
-        with open(safe_path, "wb") as f:
+        tmpfile = os.path.join(tempfile.gettempdir(), filename)
+        with open(tmpfile, "wb") as f:
             f.write(file_bytes)
-        ds = load_csv(safe_path)
-        # add to registry (registry will notify views)
+        ds = load_csv(tmpfile)
         self.registry.add(ds)
 
-    def handle_select(self, dataset_name: str):
-        if not dataset_name:
-            self.view.dataset_view.clear()
-            return
+    def handle_select(self, dataset_name):
         ds = self.registry.get(dataset_name)
-        self.view.dataset_view.render_dataset(ds)
+        if ds:
+            self.view.dataset_view.render_dataset(ds)
+        else:
+            self.view.dataset_view.clear()
 
-    def handle_remove(self, dataset_name: str):
-        if not dataset_name:
-            return
+    def handle_remove(self, dataset_name):
         self.registry.remove(dataset_name)
-        # if removed dataset was displayed, clear inspector
         self.view.dataset_view.clear()
 
+    # ---------------------- Panels ---------------------
     def handle_new_panel(self):
-        # Placeholder: will open creation dialog and create a PanelController
-        pass
+        self.view.creation_dialog.open()
 
-    # ---------------------------
-    # Public helpers
-    # ---------------------------
+    def handle_panel_created(self, config):
+        ctrl = PanelController(self.registry, config, remove_callback=self.remove_panel)
+        self.panel_controllers.append(ctrl)
+        self.view.add_panel(ctrl.view)
+
+    def remove_panel(self, panel_ctrl):
+        self.panel_controllers.remove(panel_ctrl)
+        self.view.remove_panel(panel_ctrl.view)
+
+    # ---------------------------------------------------
     def layout(self):
         return self.view.view()
