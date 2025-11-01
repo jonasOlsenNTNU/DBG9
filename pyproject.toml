@@ -19,5 +19,6 @@ dependencies = [
   "bokeh>=3.8.0",
   "pandas>=2.3",
   "hvplot>=0.12",
-  "numpy>=2.3.4"
+  "numpy>=2.3.4",
+  "datashader>=0.18.2"
 ]
