@@ -1,31 +1,62 @@
+/* ---------------------- */
 /* Top-level layout */
+/* ---------------------- */
 .main-layout {
     display: flex;
     flex-direction: row;
-    height: 100vh;
-    background-color: #f9fafb;
-    overflow: hidden;
+    min-height: 100vh;            /* fill viewport */
+    background-color: #f9fafb;     
+    overflow: hidden;              /* prevent unwanted scrollbars */
 }
 
+/* ---------------------- */
 /* Sidebar */
+/* ---------------------- */
 .main-sidebar {
-    flex: 0 0 12%;      /* ~12% of viewport width */
+    flex: 0 0 12%;                 /* ~12% of viewport width */
     max-width: 300px;
     min-width: 200px;
-    overflow-y: auto;
+    overflow-y: auto;              /* scroll if sidebar content is tall */
     background-color: #f3f4f6;
     padding: 1rem;
-    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
 }
 
-/* Main content area */
+/* Main content area fills the viewport */
 .main-content-area {
-    flex: 1;             /* fill remaining space */
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;           /* allow growth and shrink */
+    min-height: 0;            
     padding: 1rem;
-    overflow-y: auto;
     background-color: #ffffff;
+    overflow: hidden;         /* scroll handled by child */
+}
+
+/* Scrollable stack: dataset view + panels */
+.scrollable-stack {
+    flex: 1 1 auto;           
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;         /* scroll when content grows */
+    gap: 0.5rem;
+    min-height: 0;            
+    padding-bottom: 1.5rem;
+}
+
+.panels-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;       
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 0;      
+}
+
+/* ensure panel cards are full-width and use border-box sizing */
+.panel-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Optional: spacing between sidebar and main content */
@@ -33,7 +64,39 @@
     margin-right: 1rem;
 }
 
-/* Responsive for smaller screens */
+/* ---------------------- */
+/* Floating dialog: panel creation */
+/* ---------------------- */
+.floating-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    padding: 1.5rem;
+    z-index: 1000;
+    width: 400px;
+    max-width: 90%;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Optional: backdrop inside dialog */
+.floating-dialog::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.3);
+    z-index: -1;
+    border-radius: inherit;
+}
+
+/* ---------------------- */
+/* Responsive adjustments */
+/* ---------------------- */
 @media (max-width: 768px) {
     .main-layout {
         flex-direction: column;

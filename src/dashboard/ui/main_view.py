@@ -14,23 +14,36 @@ class MainView:
         # Create objects (widgets) to put in panel.
         self.sidebar = SidebarView()
         self.dataset_view = DatasetView()
-        self.panels_area = pn.Column(sizing_mode="stretch_both")
+        self.panels_area = pn.Column(sizing_mode="stretch_width")
+        
+        # Dialog initially hidden
         self.creation_dialog = PanelCreationDialog(registry)
+        self.creation_dialog.dialog.visible = False
+        self.creation_dialog.dialog.css_classes.append("floating-dialog")
 
         #Add CSS for widgets.
         self.sidebar._panel.css_classes.append("main-sidebar")
+        self.panels_area.css_classes.append("panels_container")
 
         header = pn.pane.Markdown("# Data Dashboard", sizing_mode="stretch_width")
+
+
+        # Scrollable stack
+        self.scrollable_stack = pn.Column(
+            self.dataset_view.view(),
+            pn.pane.Markdown("## 📊 Panels"),
+            self.panels_area,
+            sizing_mode="stretch_width",
+            css_classes=["scrollable-stack"]
+        )
 
         main_area = pn.Column(
             header,
             pn.layout.Divider(),
-            self.dataset_view.view(),
-            pn.pane.Markdown("## 📊 Panels"),
-            self.panels_area,
-            self.creation_dialog.dialog,
+            self.scrollable_stack,
+            self.creation_dialog.dialog,  # Hidden until called
             sizing_mode="stretch_both",
-            css_classes=["main-content-area"],
+            css_classes=["main-content-area"]
         )
 
         self._layout = pn.Row(
@@ -48,6 +61,6 @@ class MainView:
             self.panels_area.objects.remove(panel_view.layout)
         except ValueError:
             pass
-
+    
     def view(self):
         return self._layout

@@ -10,7 +10,7 @@ class PanelView:
         self.panel_id = panel_id
         self.title = title
         self.close_button = pn.widgets.Button(name="✖", button_type="danger", width=40)
-        self.plot_pane = pn.pane.HoloViews(None, sizing_mode="stretch_both")
+        self.plot_pane = pn.pane.HoloViews(None, sizing_mode="stretch_width")
         self._on_close = []
 
         header = pn.Row(
@@ -20,9 +20,16 @@ class PanelView:
             sizing_mode="stretch_width",
         )
 
+        card = pn.Card(header, self.plot_pane, sizing_mode="stretch_width", margin=10)
+
+
+        # Apply CSS to widgets.
+        header.css_classes.append("panel-header")
+        card.css_classes.append("panel-card")
+
         self.layout = pn.Column(
-            pn.Card(header, self.plot_pane, sizing_mode="stretch_width", margin=10),
-            sizing_mode="stretch_width",
+            card,
+            sizing_mode="stretch_width"
         )
 
         self.close_button.on_click(lambda _: self._trigger_close())
