@@ -1,4 +1,6 @@
 # src/dashboard/data/dataset_registry.py
+from __future__ import annotations
+
 from typing import Dict, Callable
 from .data_loader import Dataset
 import threading

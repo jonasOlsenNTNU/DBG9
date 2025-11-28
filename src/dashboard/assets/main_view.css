@@ -1,103 +1,209 @@
-/* ---------------------- */
-/* Top-level layout */
-/* ---------------------- */
+/* ===================================================== */
+/*  Global layout for the storyboard dashboard           */
+/* ===================================================== */
+
+/* Rot-layouten til storyboardet (ShippingStoryboardView) */
+.story-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* Topptekst / problemstilling */
+.story-header {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.story-header h1 {
+    font-size: clamp(2.1rem, 3vw, 2.8rem);
+    font-weight: 800;
+    margin: 0 0 0.75rem;
+}
+
+.story-header p {
+    margin: 0;
+    font-size: 0.98rem;
+    color: #4b5563;
+}
+
+/* Grid for de fire stegene (2 x 2 på store skjermer) */
+.story-steps-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* På større skjermer: to kolonner */
+@media (min-width: 1024px) {
+    .story-steps-grid > .bk-Row {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* ===================================================== */
+/*  Cards for each step                                  */
+/* ===================================================== */
+
+.story-step-card {
+    background-color: #ffffff;
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Overskrifter & brødtekst inni kortene */
+.story-step-card h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.story-step-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Rader/kolonner inni kortene skal ha litt luft */
+.story-step-card .bk-panel-models-row,
+.story-step-card .bk-panel-models-column {
+    gap: 0.75rem;
+}
+
+/* ===================================================== */
+/*  Widgets: knapper, dropdowns, osv.                    */
+/* ===================================================== */
+
+/* CheckButtonGroup – Top 10 / Bottom 10 */
+.story-step-card .bk-btn-group {
+    display: inline-flex;
+    border-radius: 999px;
+    background: #e5e7eb;
+    padding: 0.15rem;
+}
+
+.story-step-card .bk-btn-group .bk-btn {
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: #111827;
+    font-size: 0.88rem;
+    padding: 0.45rem 0.9rem;
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.story-step-card .bk-btn-group .bk-btn:hover {
+    background-color: #d1d5db;
+}
+
+.story-step-card .bk-btn-group .bk-btn.bk-active {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+}
+
+/* Dropdowns (Select widgets) */
+.story-step-card select {
+    border-radius: 999px !important;
+    border: 1px solid #d1d5db !important;
+    padding: 0.35rem 0.9rem !important;
+    font-size: 0.9rem !important;
+    color: #111827 !important;
+    background-color: #f9fafb !important;
+}
+
+/* Label + dropdown på samme rad */
+.story-step-card .bk-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+/* ===================================================== */
+/*  Plots                                                */
+/* ===================================================== */
+
+.story-step-card .bk-plot {
+    width: 100%;
+}
+
+/* Litt ekstra luft mellom plott og tekst */
+.story-step-card .bk-plot-area,
+.story-step-card .bk-plot-layout {
+    margin-top: 0.5rem;
+}
+
+/* ===================================================== */
+/*  Responsiv tilpasning                                 */
+/* ===================================================== */
+
+@media (max-width: 768px) {
+    .story-layout {
+        padding: 1.75rem 1.1rem 3rem;
+    }
+
+    .story-step-card {
+        padding: 1.25rem 1.25rem;
+    }
+
+    .story-header h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ===================================================== */
+/*  (Valgfritt) gamle main-layout-klasser fra original   */
+/*  oppgaven – skader ikke om de ligger her selv om      */
+/*  storyboardet ikke bruker dem direkte.                */
+/* ===================================================== */
+
 .main-layout {
     display: flex;
     flex-direction: row;
-    min-height: 100vh;            /* fill viewport */
-    background-color: #f9fafb;     
-    overflow: hidden;              /* prevent unwanted scrollbars */
+    min-height: 100vh;
+    background-color: #f9fafb;
+    overflow: hidden;
 }
 
-/* ---------------------- */
-/* Sidebar */
-/* ---------------------- */
 .main-sidebar {
-    flex: 0 0 12%;                 /* ~12% of viewport width */
-    max-width: 300px;
-    min-width: 200px;
-    overflow-y: auto;              /* scroll if sidebar content is tall */
-    background-color: #f3f4f6;
-    padding: 1rem;
-    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+    flex: 0 0 14%;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 1.25rem 1rem;
 }
 
-/* Main content area fills the viewport */
 .main-content-area {
+    flex: 1 1 auto;
+    padding: 1.5rem 1.75rem 2.5rem;
+}
+
+/* dataset/panels-områder om du skulle bruke MainView igjen */
+.dataset-area {
+    margin-bottom: 1.25rem;
+}
+
+.panels-area {
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;           /* allow growth and shrink */
-    min-height: 0;            
-    padding: 1rem;
-    background-color: #ffffff;
-    overflow: hidden;         /* scroll handled by child */
+    gap: 1rem;
 }
 
-/* Scrollable stack: dataset view + panels */
-.scrollable-stack {
-    flex: 1 1 auto;           
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;         /* scroll when content grows */
-    gap: 0.5rem;
-    min-height: 0;            
-    padding-bottom: 1.5rem;
-}
-
-.panels-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;       
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 0;      
-}
-
-/* ensure panel cards are full-width and use border-box sizing */
-.panel-card {
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Optional: spacing between sidebar and main content */
-.main-layout > .main-sidebar {
-    margin-right: 1rem;
-}
-
-/* ---------------------- */
-/* Floating dialog: panel creation */
-/* ---------------------- */
-.floating-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    padding: 1.5rem;
-    z-index: 1000;
-    width: 400px;
-    max-width: 90%;
-    transition: opacity 0.2s ease-in-out;
-}
-
-/* Optional: backdrop inside dialog */
-.floating-dialog::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.3);
-    z-index: -1;
-    border-radius: inherit;
-}
-
-/* ---------------------- */
-/* Responsive adjustments */
-/* ---------------------- */
-@media (max-width: 768px) {
+/* responsiv stacking hvis vinduet er lite */
+@media (max-width: 900px) {
     .main-layout {
         flex-direction: column;
     }
@@ -106,10 +212,9 @@
     .main-content-area {
         flex: 1 0 100%;
         max-width: 100%;
-        min-width: auto;
     }
 
     .main-content-area {
-        margin-top: 1rem;
+        margin-top: 0.75rem;
     }
 }

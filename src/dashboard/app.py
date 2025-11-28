@@ -1,7 +1,8 @@
 # src/dashboard/app.py
 import panel as pn
-from .controllers.dashboard_controller import DashboardController
+from .controllers.shipping_controller import ShippingDashboardController
 from .utils.load_css import load_css
+
 
 def load_resources():
     """
@@ -11,12 +12,15 @@ def load_resources():
     load_css("global.css")
 
 
-
 def main():
     load_resources()
-    controller = DashboardController()
-    pn.serve(controller.layout, title="Data Dashboard", show=True)
+    controller = ShippingDashboardController()
+    pn.serve(
+        controller.layout,           # function that returns the root layout
+        title="Shipping & CO₂ Dashboard",
+        show=True
+    )
+
 
 if __name__ == "__main__":
     main()
-
