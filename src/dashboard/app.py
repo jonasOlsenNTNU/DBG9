@@ -5,9 +5,6 @@ from .utils.load_css import load_css
 
 
 def load_resources():
-    """
-    Load Panel resources and css.
-    """
     pn.extension('tabulator')
     load_css("global.css")
 
@@ -16,9 +13,9 @@ def main():
     load_resources()
     controller = ShippingDashboardController()
     pn.serve(
-        controller.layout,           # function that returns the root layout
+        controller.layout,
         title="Shipping & CO₂ Dashboard",
-        show=True
+        show=True,
     )
 
 

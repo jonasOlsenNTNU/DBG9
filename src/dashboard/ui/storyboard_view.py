@@ -157,6 +157,8 @@ patterns more directly to shipping volumes._
             height=320,
             show_grid=True,
             toolbar=None,
+            shared_axes=False,   # 👈 ikke del zoom med andre
+            framewise=True,
         )
 
     def _total_co2_index_plot(self):
@@ -189,7 +191,10 @@ patterns more directly to shipping volumes._
             height=320,
             show_grid=True,
             toolbar=None,
+            shared_axes=False,
+            framewise=True,
         )
+
 
     def _intensity_plot(self, metric: str):
         """CO₂ intensity (per capita or per GDP)."""
@@ -230,6 +235,8 @@ patterns more directly to shipping volumes._
             height=320,
             show_grid=True,
             toolbar=None,
+            shared_axes=False,
+            framewise=True,
         )
 
     def _ratio_plot(self):
@@ -249,8 +256,26 @@ patterns more directly to shipping volumes._
             height=320,
             show_grid=True,
             toolbar=None,
+            shared_axes=False,
+            framewise=True,
         )
 
+
+    # ------------------------------------------------------------------
+    # Panel integration
     # ------------------------------------------------------------------
     def view(self):
+        """Backward-compatible method if someone calls .view()."""
+        return self._layout
+
+    @property
+    def layout(self):
+        """Property used by controllers/templates that expect .layout."""
+        return self._layout
+
+    def __panel__(self):
+        """
+        Make this class directly usable in Panel layouts:
+        pn.Column(ShippingStoryboardView(...), ...)
+        """
         return self._layout
