@@ -1,4 +1,3 @@
-# src/dashboard/app.py
 import panel as pn
 from .controllers.shipping_controller import ShippingDashboardController
 from .utils.load_css import load_css
@@ -7,6 +6,7 @@ from .utils.load_css import load_css
 def load_resources():
     pn.extension('tabulator')
     load_css("global.css")
+    load_css("oecd_theme.css")
 
 
 def main():

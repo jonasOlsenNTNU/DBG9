@@ -3,6 +3,10 @@
 from pathlib import Path
 import pandas as pd
 import panel as pn
+import numpy as np
+TOP_COLOR = "#004c6d"
+BOTTOM_COLOR = "#2a9d8f"
+PORT_COLOR = "#e76f51"
 import hvplot.pandas  # gir .hvplot på DataFrames/Series
 
 ROOT = Path(__file__).resolve().parents[3]   # .../DBG9
@@ -106,15 +110,111 @@ def make_group_plot(df_group, title):
         show_grid=True,
         toolbar="disable",
     )
+def interpret_correlation(r: float) -> str:
+    """Return a short human-readable interpretation for a Pearson r."""
+    if r > 0.7:
+        return "This indicates a **strong positive correlation** between CO₂ and port traffic."
+    if r > 0.4:
+        return "This indicates a **moderate positive correlation** between CO₂ and port traffic."
+    if r > 0.2:
+        return "This indicates a **weak positive correlation** between CO₂ and port traffic."
+    if r > -0.2:
+        return "This indicates **no clear linear correlation**."
+    if r > -0.4:
+        return "This indicates a **weak negative correlation** between CO₂ and port traffic."
+    if r > -0.7:
+        return "This indicates a **moderate negative correlation** between CO₂ and port traffic."
+    return "This indicates a **strong negative correlation** between CO₂ and port traffic."
+
+
+def build_correlation_section(df_group: pd.DataFrame, group_name: str):
+    """
+    Build a correlation card for one group:
+      - numeric Pearson correlation
+      - scatter plot CO₂ vs port traffic
+      - regression line
+      - short interpretation text underneath
+    """
+    if df_group.empty:
+        return pn.pane.Markdown(f"**No data available for {group_name}.**")
+
+    # Use raw columns if they exist, otherwise fall back to normalized.
+    if "port_traffic" in df_group.columns:
+        x = df_group["port_traffic"]
+    else:
+        x = df_group["port_norm"]
+
+    if "co2" in df_group.columns:
+        y = df_group["co2"]
+    else:
+        y = df_group["co2_norm"]
+
+    # Compute correlation (works the same on normalized or raw values)
+    corr = x.corr(y)
+
+    # DataFrame for plotting
+    scatter_df = pd.DataFrame({"port_traffic": x, "co2": y})
+
+    scatter = scatter_df.hvplot.scatter(
+        x="port_traffic",
+        y="co2",
+        xlabel="Container port traffic (TEU or index)",
+        ylabel="Total CO₂ (Mt or index)",
+        title=f"{group_name} — CO₂ vs port traffic",
+        size=7,
+        color=TOP_COLOR,   # samme blå som de andre grafene
+    )
+
+    # Regression line – egen dataframe med kolonnenavn
+    x_sorted = np.linspace(x.min(), x.max(), 50)
+    coef = np.polyfit(x, y, 1)
+    y_hat = np.poly1d(coef)(x_sorted)
+    reg_df = pd.DataFrame({"port_traffic": x_sorted, "co2": y_hat})
+
+    reg_line = reg_df.hvplot.line(
+        x="port_traffic",
+        y="co2",
+        color=PORT_COLOR,   # samme oransje som containerlinja
+        line_width=2,
+        alpha=0.8,
+        label="Regression line",
+    )
+
+    combined = (scatter * reg_line).opts(
+        height=320,
+        shared_axes=False,
+        show_grid=True,
+        toolbar=None,       # ingen toolbar, matcher resten
+    )
+
+    text = pn.pane.Markdown(
+        f"""
+**Pearson correlation:** `{corr:.3f}`  
+
+{interpret_correlation(corr)}
+""",
+        sizing_mode="stretch_width",
+    )
+
+    # Graf øverst, tekst under – matcher stilen i resten av dashboardet
+    return pn.Column(
+        combined,
+        text,
+        sizing_mode="stretch_width",
+    )
+
 
 
 def create_maritime_group_section(top_iso, bottom_iso):
     """
-    Build the full maritime section with two plots, using the SAME
-    Top 10 / Bottom 10 country groups as the OWID-CO₂ storyboard.
+    Build the full maritime section with two cards:
 
-    top_iso:    list of ISO3 country codes for Top 10 group
-    bottom_iso: list of ISO3 country codes for Bottom 10 group
+      A) Time series card:
+         - Top 10: CO₂ vs container port traffic (index, 2000–2024)
+         - Bottom 10: CO₂ vs container port traffic (index, 2000–2024)
+
+      B) Correlation card:
+         - Scatter plots and Pearson r for Top 10 and Bottom 10
     """
     df_port = load_port_long()
     df_co2 = load_co2()
@@ -131,11 +231,38 @@ def create_maritime_group_section(top_iso, bottom_iso):
         "Bottom 10 maritime countries – CO₂ vs container port traffic (2000–2024)",
     )
 
-    section = pn.Column(
+    # ---- Card A: time series ----
+    time_series_card = pn.Column(
         "## CO₂ vs container port traffic – Top 10 vs Bottom 10 (2000–2024)",
         top_plot,
         bottom_plot,
         sizing_mode="stretch_width",
-        css_classes=["story-step-card"],  # samme stil som de andre seksjonene
+        css_classes=["story-step-card"],
     )
-    return section
+
+    # ---- Card B: correlation analysis ----
+    corr_top = build_correlation_section(top_ts, "Top 10 maritime economies")
+    corr_bottom = build_correlation_section(bottom_ts, "Bottom 10 maritime economies")
+
+    corr_card = pn.Column(
+        "## Correlation between maritime activity and CO₂ emissions",
+        pn.pane.Markdown(
+            "We compute Pearson correlations and show scatter plots with regression "
+            "lines to quantify how strongly container port traffic is linked to CO₂ "
+            "emissions for each group."
+        ),
+        corr_top,
+        corr_bottom,
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
+    )
+
+    # Return both cards as two stacked sections in the storyboard
+    return pn.Column(
+        time_series_card,
+        corr_card,
+        sizing_mode="stretch_width",
+    )
+
+
+
