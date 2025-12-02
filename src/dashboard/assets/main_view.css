@@ -1,8 +1,4 @@
-/* ===================================================== */
-/*  Global layout for the storyboard dashboard           */
-/* ===================================================== */
-
-/* Rot-layouten til storyboardet (ShippingStoryboardView) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 .story-layout {
     max-width: 1200px;
     margin: 0 auto;
@@ -12,18 +8,15 @@
     gap: 1.75rem;
 }
 
-/* Topptekst / problemstilling */
 .story-header {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
-    color: #0f172a;
-    line-height: 1.25;
+    max-width: 960px;
+    margin: 0 auto 24px auto;
 }
 
 .story-header h1 {
-    font-size: clamp(2.1rem, 3vw, 2.8rem);
-    font-weight: 800;
-    margin: 0 0 0.75rem;
+    font-size: 28px;
+    font-weight: 700;
+    color: #004c6d;
 }
 
 .story-header p {
@@ -32,14 +25,14 @@
     color: #4b5563;
 }
 
-/* Grid for de fire stegene (2 x 2 på store skjermer) */
+
 .story-steps-grid {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-/* På større skjermer: to kolonner */
+
 @media (min-width: 1024px) {
     .story-steps-grid > .bk-Row {
         display: grid !important;
@@ -48,22 +41,16 @@
     }
 }
 
-/* ===================================================== */
-/*  Cards for each step                                  */
-/* ===================================================== */
-
 .story-step-card {
-    background-color: #ffffff;
+    max-width: 960px;
+    margin: 16px auto;
+    padding: 20px 24px;
+    background: #ffffff;
     border-radius: 18px;
-    padding: 1.5rem 1.75rem;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
-    border: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    box-shadow: 0 10px 24px rgba(0, 27, 68, 0.08);
+    border: 1px solid #d7e2f2;
 }
 
-/* Overskrifter & brødtekst inni kortene */
 .story-step-card h3 {
     margin: 0 0 0.3rem;
     font-size: 1.05rem;
@@ -77,17 +64,11 @@
     color: #6b7280;
 }
 
-/* Rader/kolonner inni kortene skal ha litt luft */
 .story-step-card .bk-panel-models-row,
 .story-step-card .bk-panel-models-column {
     gap: 0.75rem;
 }
 
-/* ===================================================== */
-/*  Widgets: knapper, dropdowns, osv.                    */
-/* ===================================================== */
-
-/* CheckButtonGroup – Top 10 / Bottom 10 */
 .story-step-card .bk-btn-group {
     display: inline-flex;
     border-radius: 999px;
@@ -116,7 +97,6 @@
     box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
 }
 
-/* Dropdowns (Select widgets) */
 .story-step-card select {
     border-radius: 999px !important;
     border: 1px solid #d1d5db !important;
@@ -126,30 +106,22 @@
     background-color: #f9fafb !important;
 }
 
-/* Label + dropdown på samme rad */
 .story-step-card .bk-input-group {
     display: flex;
     align-items: center;
     gap: 0.35rem;
 }
 
-/* ===================================================== */
-/*  Plots                                                */
-/* ===================================================== */
 
 .story-step-card .bk-plot {
     width: 100%;
 }
 
-/* Litt ekstra luft mellom plott og tekst */
 .story-step-card .bk-plot-area,
 .story-step-card .bk-plot-layout {
     margin-top: 0.5rem;
 }
 
-/* ===================================================== */
-/*  Responsiv tilpasning                                 */
-/* ===================================================== */
 
 @media (max-width: 768px) {
     .story-layout {
@@ -165,11 +137,7 @@
     }
 }
 
-/* ===================================================== */
-/*  (Valgfritt) gamle main-layout-klasser fra original   */
-/*  oppgaven – skader ikke om de ligger her selv om      */
-/*  storyboardet ikke bruker dem direkte.                */
-/* ===================================================== */
+
 
 .main-layout {
     display: flex;
@@ -191,7 +159,6 @@
     padding: 1.5rem 1.75rem 2.5rem;
 }
 
-/* dataset/panels-områder om du skulle bruke MainView igjen */
 .dataset-area {
     margin-bottom: 1.25rem;
 }
@@ -202,7 +169,6 @@
     gap: 1rem;
 }
 
-/* responsiv stacking hvis vinduet er lite */
 @media (max-width: 900px) {
     .main-layout {
         flex-direction: column;
@@ -217,4 +183,32 @@
     .main-content-area {
         margin-top: 0.75rem;
     }
+}
+body,
+.bk,
+.bk-root {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+    color: #102a43;
+}
+
+.story-step-card h3,
+.story-step-card h4 {
+    color: #004c6d;
+    margin-top: 0;
+}
+
+.story-step-card .bk-root {
+    padding-top: 8px;
+}
+
+.bk.bk-btn,
+.bk.bk-input {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+    border-radius: 999px;
+}
+
+.bk.bk-btn-group .bk-btn {
+    border-radius: 999px;
 }

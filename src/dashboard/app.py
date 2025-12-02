@@ -4,7 +4,7 @@ from .utils.load_css import load_css
 
 
 def load_resources():
-    pn.extension('tabulator')
+    pn.extension("tabulator")
     load_css("global.css")
     load_css("oecd_theme.css")
 

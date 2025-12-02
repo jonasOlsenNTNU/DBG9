@@ -39,9 +39,7 @@ class ShippingStoryboardView:
         controls_row = create_controls_row(self.intensity_metric_select)
 
         section_total = create_section_total(self.data)
-        section_intensity = create_section_intensity(
-            self.data, self.intensity_metric_select
-        )
+        section_intensity = create_section_intensity(self.data)
         section_ratio = create_section_ratio(self.data)
         forecast_section = create_forecast_section(self.data)
 
