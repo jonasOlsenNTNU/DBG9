@@ -34,7 +34,3 @@ htmlcov/
 # --- Data Files ---
 data/*
 !data/.gitkeep
-!data/oecd_shipping.csv
-!data/owid-co2-data.csv
-!data/port_traffic_data.csv
-!data/port_traffic_relevant_countries.csv
