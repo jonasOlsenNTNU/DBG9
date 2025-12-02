@@ -9,7 +9,6 @@ from .plot_generator import (
     make_total_co2_index_multi_plot,
     make_ratio_plot,
     make_forecast_plot,
-    make_total_co2_log_plot,
     make_total_co2_multi_plot,
     make_intensity_multi_plot,
     make_intensity_index_multi_plot,

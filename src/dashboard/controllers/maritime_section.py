@@ -2,6 +2,8 @@ from pathlib import Path
 import pandas as pd
 import panel as pn
 import numpy as np
+from bokeh.plotting import figure
+from idna import ulabel
 
 TOP_COLOR = "#004c6d"
 BOTTOM_COLOR = "#2a9d8f"
@@ -42,6 +44,59 @@ def load_co2():
     df = df[df["year"].between(2000, 2024)]
     return df
 
+def create_trade_forecast_section(top_iso, bottom_iso, horizon: int = 3):
+    df_port = load_port_long()
+    df_co2 = load_co2()
+
+    group_map = {
+        "Top 10 maritime economies": top_iso,
+        "Bottom 10 maritime economies": bottom_iso,
+    }
+
+    group_select = pn.widgets.RadioButtonGroup(
+        name="Group",
+        options=list(group_map.keys()),
+        value="Top 10 maritime economies",
+        button_type="default",
+    )
+
+    def _view(label: str):
+        iso_codes = group_map[label]
+        plot, mae_trade = make_trade_forecast_plot(
+            df_port, df_co2, iso_codes, label, horizon=horizon
+        )
+
+        text = pn.pane.Markdown(
+            f"""
+### Trade-based CO₂ forecast – {label}
+
+We estimate a simple regression **CO₂ = α + β · port traffic** on historical
+data (2000–2024) for this group. Future **port traffic** is extrapolated with
+a linear time trend and mapped through the regression to obtain a
+**{horizon}-year trade-based CO₂ forecast**.
+
+Backtesting on the last 3 observed years gives a mean absolute error (MAE)
+of **{mae_trade:,.1f} Mt** for the trade-based model.
+""",
+            sizing_mode="stretch_width",
+        )
+
+        return pn.Column(text, plot)
+
+    dynamic_panel = pn.bind(_view, label=group_select)
+
+    return pn.Column(
+        "## Trade-based CO₂ forecast from container port traffic",
+        pn.pane.Markdown(
+            "This section links **container port traffic** directly to "
+            "**CO₂ emissions**. It complements the pure time-series models "
+            "by forecasting CO₂ through a regression on maritime trade volumes."
+        ),
+        group_select,
+        dynamic_panel,
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
+    )
 
 def build_group_timeseries(df_port, df_co2, iso_codes):
     if not iso_codes:
@@ -66,6 +121,89 @@ def build_group_timeseries(df_port, df_co2, iso_codes):
     df_merged["co2_norm"] = df_merged["co2"] / df_merged["co2"].max()
     df_merged["port_norm"] = df_merged["port_traffic"] / df_merged["port_traffic"].max()
     return df_merged
+
+def make_trade_forecast_plot(
+        df_port: pd.DataFrame,
+        df_co2: pd.DataFrame,
+        iso_codes,
+        group_label: str,
+        horizon: int = 3,
+):
+    ts = build_group_timeseries(df_port, df_co2, iso_codes)
+    if ts is None or ts.empty:
+        return pn.pane.Markdown("⚠️ No data available for this group."), float("nan")
+
+    ts = ts.sort_values("year").copy()
+    ts = ts[ts["year"] >= 2000].copy()
+    if ts.empty:
+        return pn.pane.Markdown("⚠️ No data from year 2000 onwards."), float("nan")
+
+    years = ts["year"].values.astype(int)
+    co2 = ts["co2"].values.astype(float)
+    port = ts["port_traffic"].values.astype(float)
+
+    beta, alpha = np.polyfit(port, co2, 1)
+    fitted = alpha + beta * port
+
+    port_slope, port_intercept = np.polyfit(years, port, 1)
+    last_year = years.max()
+    horizon = max(1, horizon)
+
+    future_years = np.arange(last_year + 1, last_year + horizon + 1)
+    future_port = port_slope * future_years + port_intercept
+    future_co2 = alpha + beta * future_port
+
+    back_h = min(3, len(years))
+    if back_h > 0:
+        test_mask = years > (last_year - back_h)
+        mae_trade = float(np.mean(np.abs(co2[test_mask] - fitted[test_mask])))
+    else:
+        mae_trade = float("nan")
+
+    plot_df = pd.DataFrame(
+        {
+            "year": np.concatenate([years, years, future_years]),
+            "co2": np.concatenate([co2, fitted, future_co2]),
+            "series": (
+                    ["History"] * len(years)
+                    + ["Trade-based fitted"] * len(years)
+                    + ["Trade-based forecast"] * len(future_years)
+            ),
+        }
+    )
+
+    plot_df["forecast_year"] = plot_df["year"]
+
+    color_key = {
+        "History": TOP_COLOR if group_label.startswith("Top") else BOTTOM_COLOR,
+        "Trade-based fitted": "#f4a261",
+        "Trade-based forecast": PORT_COLOR,
+    }
+
+    min_year_plot = 2000
+    max_year_plot = int(last_year + horizon)
+
+    plot = plot_df.hvplot.line(
+        x="forecast_year",
+        y="co2",
+        by="series",
+        line_width=3,
+        color_key=color_key,
+    ).opts(
+        xlabel="Year",
+        ylabel="Total CO₂ (Mt)",
+        height=320,
+        show_grid=True,
+        toolbar=None,
+        legend_position="top_left",
+        xlim=(min_year_plot, max_year_plot),
+    )
+
+    return plot, mae_trade
+
+
+
+
 
 
 def make_group_plot(df_group, title):
@@ -180,6 +318,80 @@ def build_correlation_section(df_group: pd.DataFrame, group_name: str):
         sizing_mode="stretch_width",
     )
 
+def make_trade_forecast_plot(
+        df_port: pd.DataFrame,
+        df_co2: pd.DataFrame,
+        iso_codes,
+        group_label: str,
+        horizon: int = 3,
+):
+    ts = build_group_timeseries(df_port, df_co2, iso_codes)
+    if ts is None or ts.empty:
+        return pn.pane.Markdown("⚠️ No data available for this group."), float("nan")
+
+
+    ts = ts.sort_values("year").copy()
+    ts = ts[ts["year"] >= 2000].copy()
+    if ts.empty:
+        return pn.pane.Markdown("⚠️ No data from year 2000 onwards."), float("nan")
+
+    years = ts["year"].values.astype(int)
+    co2 = ts["co2"].values.astype(float)
+    port = ts["port_traffic"].values.astype(float)
+
+
+    beta, alpha = np.polyfit(port, co2, 1)
+    fitted = alpha + beta * port
+
+
+    port_slope, port_intercept = np.polyfit(years, port, 1)
+    last_year = int(years.max())
+    horizon = max(1, horizon)
+
+    future_years = np.arange(last_year + 1, last_year + horizon + 1)
+    future_port = port_slope * future_years + port_intercept
+    future_co2 = alpha + beta * future_port
+
+    back_h = min(3, len(years))
+    if back_h > 0:
+        test_mask = years > (last_year - back_h)
+        mae_trade = float(np.mean(np.abs(co2[test_mask] - fitted[test_mask])))
+    else:
+        mae_trade = float("nan")
+
+    min_year_plot = 2000
+    max_year_plot = last_year + horizon
+
+    fig = figure(
+        width=800,
+        height=320,
+        x_range=(min_year_plot, max_year_plot),
+        x_axis_label="Year",
+        y_axis_label="Total CO₂ (Mt)",
+        toolbar_location=None,
+    )
+
+
+    hist_color = TOP_COLOR if group_label.startswith("Top") else BOTTOM_COLOR
+    fitted_color = "#f4a261"
+    forecast_color = PORT_COLOR
+
+    fig.line(years, co2, line_width=3, color=hist_color, legend_label="History")
+
+    fig.line(years, fitted, line_width=2, color=fitted_color, legend_label="Trade-based fitted")
+
+    fig.line(
+        future_years,
+        future_co2,
+        line_width=3,
+        color=forecast_color,
+        legend_label="Trade-based forecast",
+    )
+
+    fig.legend.location = "top_left"
+    fig.legend.click_policy = "hide"
+
+    return fig, mae_trade
 
 
 def create_maritime_group_section(top_iso, bottom_iso):

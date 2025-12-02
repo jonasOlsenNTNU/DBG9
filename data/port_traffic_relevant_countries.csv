@@ -1,0 +1,375 @@
+Country Name,Country Code,year,port_traffic
+East Asia & Pacific (excluding high income),EAP,2000,56840499.0
+East Asia & Pacific,EAS,2000,111180913.0
+High income,HIC,2000,147515682.0
+IBRD only,IBD,2000,78803790.0
+IDA & IBRD total,IBT,2000,82068088.0
+Low & middle income,LMY,2000,76584296.0
+Late-demographic dividend,LTE,2000,67353110.0
+Middle income,MIC,2000,76336119.0
+Upper middle income,UMC,2000,64693589.0
+World,WLD,2000,224774536.0
+East Asia & Pacific (excluding high income),EAP,2001,62621336.0
+East Asia & Pacific,EAS,2001,115948099.0
+High income,HIC,2001,150463844.0
+IBRD only,IBD,2001,85755801.0
+IDA & IBRD total,IBT,2001,90175158.0
+Low & middle income,LMY,2001,83687495.0
+Late-demographic dividend,LTE,2001,74646701.0
+Middle income,MIC,2001,83310128.0
+Upper middle income,UMC,2001,69766760.0
+World,WLD,2001,235075458.0
+East Asia & Pacific (excluding high income),EAP,2002,77904818.0
+East Asia & Pacific,EAS,2002,137479148.0
+High income,HIC,2002,162812763.0
+IBRD only,IBD,2002,101601201.0
+IDA & IBRD total,IBT,2002,104943041.0
+Low & middle income,LMY,2002,100643748.0
+Late-demographic dividend,LTE,2002,90018938.0
+Middle income,MIC,2002,100643748.0
+Upper middle income,UMC,2002,87660698.0
+World,WLD,2002,263456511.0
+East Asia & Pacific (excluding high income),EAP,2003,86891558.0
+East Asia & Pacific,EAS,2003,151803542.0
+High income,HIC,2003,180811675.0
+IBRD only,IBD,2003,116840825.0
+IDA & IBRD total,IBT,2003,121884489.0
+Low & middle income,LMY,2003,115601686.0
+Late-demographic dividend,LTE,2003,103950686.0
+Middle income,MIC,2003,115601686.0
+Upper middle income,UMC,2003,99170719.0
+World,WLD,2003,296996130.0
+East Asia & Pacific (excluding high income),EAP,2004,102402184.0
+East Asia & Pacific,EAS,2004,174201309.0
+High income,HIC,2004,201020057.0
+IBRD only,IBD,2004,138540024.0
+IDA & IBRD total,IBT,2004,144482441.0
+Low & middle income,LMY,2004,136492488.0
+Late-demographic dividend,LTE,2004,123020191.0
+Middle income,MIC,2004,136492488.0
+Upper middle income,UMC,2004,116747119.0
+World,WLD,2004,338433750.0
+East Asia & Pacific (excluding high income),EAP,2005,96232448.0
+East Asia & Pacific,EAS,2005,193780272.0
+High income,HIC,2005,240902489.0
+IBRD only,IBD,2005,137430315.0
+IDA & IBRD total,IBT,2005,143643904.0
+Low & middle income,LMY,2005,134245165.0
+Late-demographic dividend,LTE,2005,120417203.0
+Middle income,MIC,2005,134245165.0
+Upper middle income,UMC,2005,112847324.0
+World,WLD,2005,376268146.0
+East Asia & Pacific (excluding high income),EAP,2006,114796121.0
+East Asia & Pacific,EAS,2006,217761320.0
+High income,HIC,2006,255778900.0
+IBRD only,IBD,2006,164620199.0
+IDA & IBRD total,IBT,2006,170377798.0
+Low & middle income,LMY,2006,159706254.0
+Late-demographic dividend,LTE,2006,145336126.0
+Middle income,MIC,2006,159706254.0
+Upper middle income,UMC,2006,135164293.0
+World,WLD,2006,416751971.0
+Bulgaria,BGR,2007,130694.0
+Barbados,BRB,2007,99626.0
+Cuba,CUB,2007,319857.0
+Cayman Islands,CYM,2007,649.0
+East Asia & Pacific (excluding high income),EAP,2007,140639995.0
+East Asia & Pacific,EAS,2007,252296411.0
+High income,HIC,2007,290668162.0
+IBRD only,IBD,2007,200086288.0
+IDA & IBRD total,IBT,2007,213216493.0
+Low & middle income,LMY,2007,197818436.0
+Late-demographic dividend,LTE,2007,178605554.0
+Middle income,MIC,2007,195843001.0
+Namibia,NAM,2007,148234.0
+Nicaragua,NIC,2007,61007.0
+El Salvador,SLV,2007,144458.0
+Upper middle income,UMC,2007,161960218.0
+World,WLD,2007,489818309.0
+Bulgaria,BGR,2008,203253.0
+Barbados,BRB,2008,87255.0
+Cuba,CUB,2008,319000.0
+Cayman Islands,CYM,2008,36644.0
+East Asia & Pacific (excluding high income),EAP,2008,155725485.3104
+East Asia & Pacific,EAS,2008,269311779.7
+High income,HIC,2008,294087716.7856
+IBRD only,IBD,2008,223864345.9888
+IDA & IBRD total,IBT,2008,238377801.0832
+Low & middle income,LMY,2008,220739422.288
+Late-demographic dividend,LTE,2008,196030004.7776
+Middle income,MIC,2008,218577903.3672
+Namibia,NAM,2008,183605.0
+Nicaragua,NIC,2008,63030.0
+El Salvador,SLV,2008,156323.0
+Upper middle income,UMC,2008,180795607.1936
+World,WLD,2008,516152333.0736
+Bulgaria,BGR,2009,136444.0
+Barbados,BRB,2009,75015.0
+Cuba,CUB,2009,290098.6
+Cayman Islands,CYM,2009,44215.0
+East Asia & Pacific (excluding high income),EAP,2009,147752713.767078
+East Asia & Pacific,EAS,2009,247674210.41178
+High income,HIC,2009,259873546.169306
+IBRD only,IBD,2009,211234225.6313
+IDA & IBRD total,IBT,2009,225500806.411747
+Low & middle income,LMY,2009,211061327.574992
+Late-demographic dividend,LTE,2009,184240015.058549
+Middle income,MIC,2009,208953467.110417
+Namibia,NAM,2009,265663.0
+Nicaragua,NIC,2009,59471.0
+El Salvador,SLV,2009,126369.0
+Upper middle income,UMC,2009,169866105.075545
+World,WLD,2009,472175125.284298
+Bulgaria,BGR,2010,142611.0
+Barbados,BRB,2010,80424.0
+Cabo Verde,CPV,2010,54873.0
+Cuba,CUB,2010,228346.0
+Cayman Islands,CYM,2010,45649.0
+East Asia & Pacific (excluding high income),EAP,2010,182640050.675
+East Asia & Pacific,EAS,2010,296038569.635
+High income,HIC,2010,288686069.595
+IBRD only,IBD,2010,259070585.39
+IDA & IBRD total,IBT,2010,276922478.495
+Low & middle income,LMY,2010,259288104.965
+Late-demographic dividend,LTE,2010,224411839.55
+Middle income,MIC,2010,257109716.355
+Namibia,NAM,2010,247743.0
+Nicaragua,NIC,2010,68224.0
+El Salvador,SLV,2010,145774.0
+Suriname,SUR,2010,59583.0
+Upper middle income,UMC,2010,208865463.189
+World,WLD,2010,549045860.56
+Bulgaria,BGR,2011,147594.0
+Barbados,BRB,2011,77051.0
+Cabo Verde,CPV,2011,55976.0
+Cuba,CUB,2011,246773.0
+Curacao,CUW,2011,94097.0
+Cayman Islands,CYM,2011,44766.0
+East Asia & Pacific (excluding high income),EAP,2011,203453061.352
+East Asia & Pacific,EAS,2011,323355666.269
+High income,HIC,2011,306345148.528
+IBRD only,IBD,2011,288863772.047
+IDA & IBRD total,IBT,2011,308680993.499
+Low & middle income,LMY,2011,287984609.762
+Late-demographic dividend,LTE,2011,248006627.37
+Middle income,MIC,2011,285751388.032
+Namibia,NAM,2011,220178.0
+Nicaragua,NIC,2011,84420.0
+El Salvador,SLV,2011,161226.0
+Suriname,SUR,2011,97335.0
+Upper middle income,UMC,2011,233216263.46
+World,WLD,2011,595673258.29
+Bulgaria,BGR,2012,169922.0
+Barbados,BRB,2012,72163.0
+Cabo Verde,CPV,2012,49207.0
+Cuba,CUB,2012,240000.0
+Curacao,CUW,2012,99191.0
+Cayman Islands,CYM,2012,45400.0
+East Asia & Pacific (excluding high income),EAP,2012,220242777.784
+East Asia & Pacific,EAS,2012,342982329.321
+High income,HIC,2012,316293150.178
+IBRD only,IBD,2012,308646581.934
+IDA & IBRD total,IBT,2012,329126165.748
+Low & middle income,LMY,2012,307149239.841
+Late-demographic dividend,LTE,2012,267049519.937
+Middle income,MIC,2012,305035719.061
+Namibia,NAM,2012,334410.0
+Nicaragua,NIC,2012,94443.0
+El Salvador,SLV,2012,160982.0
+Suriname,SUR,2012,103961.0
+Upper middle income,UMC,2012,251089929.611
+World,WLD,2012,625012231.019
+Bulgaria,BGR,2013,180446.0
+Barbados,BRB,2013,74923.0
+Cabo Verde,CPV,2013,49084.0
+Cuba,CUB,2013,263886.0
+Curacao,CUW,2013,87452.0
+Cayman Islands,CYM,2013,46118.0
+East Asia & Pacific (excluding high income),EAP,2013,232697641.498
+East Asia & Pacific,EAS,2013,357059606.853
+High income,HIC,2013,321729098.515
+IBRD only,IBD,2013,324235505.629
+IDA & IBRD total,IBT,2013,345366798.067
+Low & middle income,LMY,2013,322768740.592
+Late-demographic dividend,LTE,2013,281585054.494
+Middle income,MIC,2013,320764797.062
+Namibia,NAM,2013,301817.0
+Nicaragua,NIC,2013,97731.0
+El Salvador,SLV,2013,180634.0
+Suriname,SUR,2013,108020.0
+Upper middle income,UMC,2013,264379882.324
+World,WLD,2013,645939512.107
+Bulgaria,BGR,2014,195456.0
+Barbados,BRB,2014,78432.0
+Cabo Verde,CPV,2014,54112.0
+Cuba,CUB,2014,230836.0
+Curacao,CUW,2014,89193.0
+Cayman Islands,CYM,2014,46720.0
+East Asia & Pacific (excluding high income),EAP,2014,246893353.738
+East Asia & Pacific,EAS,2014,375349328.341
+High income,HIC,2014,334075572.144
+IBRD only,IBD,2014,341642344.887
+IDA & IBRD total,IBT,2014,364619029.595
+Low & middle income,LMY,2014,341971393.722
+Late-demographic dividend,LTE,2014,299141088.214
+Middle income,MIC,2014,339742935.332
+Namibia,NAM,2014,253052.0
+Nicaragua,NIC,2014,116312.0
+El Salvador,SLV,2014,179577.0
+Suriname,SUR,2014,108703.0
+Upper middle income,UMC,2014,277715236.574
+World,WLD,2014,676980345.866
+Bulgaria,BGR,2015,201050.0
+Barbados,BRB,2015,86508.0
+Cabo Verde,CPV,2015,52789.0
+Cuba,CUB,2015,330713.0
+Curacao,CUW,2015,90016.0
+Cayman Islands,CYM,2015,54607.0
+East Asia & Pacific (excluding high income),EAP,2015,258420174.943
+East Asia & Pacific,EAS,2015,381776238.243
+High income,HIC,2015,331362311.203
+IBRD only,IBD,2015,351149472.9942
+IDA & IBRD total,IBT,2015,375617556.7372
+Low & middle income,LMY,2015,354715240.8572
+Late-demographic dividend,LTE,2015,309739583.1142
+Middle income,MIC,2015,352023056.6272
+Namibia,NAM,2015,237546.0
+Nicaragua,NIC,2015,144718.0
+El Salvador,SLV,2015,190708.0
+Suriname,SUR,2015,106014.0
+Upper middle income,UMC,2015,287128642.2442
+World,WLD,2015,686811737.0602
+Bulgaria,BGR,2016,206111.0
+Barbados,BRB,2016,105321.0
+Cabo Verde,CPV,2016,62112.0
+Cuba,CUB,2016,325319.0
+Curacao,CUW,2016,98278.0
+Cayman Islands,CYM,2016,60718.0
+East Asia & Pacific (excluding high income),EAP,2016,268382315.763
+East Asia & Pacific,EAS,2016,392800641.259
+High income,HIC,2016,335767762.199
+IBRD only,IBD,2016,361526908.8002
+IDA & IBRD total,IBT,2016,386897520.2532
+Low & middle income,LMY,2016,366704562.6672
+Late-demographic dividend,LTE,2016,318868584.0142
+Middle income,MIC,2016,364292664.9572
+Namibia,NAM,2016,203071.0
+Nicaragua,NIC,2016,156900.0
+El Salvador,SLV,2016,202165.0
+Suriname,SUR,2016,98652.0
+Upper middle income,UMC,2016,296457235.7042
+World,WLD,2016,702873286.8662
+Bulgaria,BGR,2017,228545.0
+Barbados,BRB,2017,107098.0
+Cabo Verde,CPV,2017,74554.0
+Cuba,CUB,2017,332240.0
+Curacao,CUW,2017,93921.0
+Cayman Islands,CYM,2017,61940.0
+East Asia & Pacific (excluding high income),EAP,2017,287679915.91
+East Asia & Pacific,EAS,2017,419122781.142
+High income,HIC,2017,353665180.676
+IBRD only,IBD,2017,390287032.3762
+IDA & IBRD total,IBT,2017,418027826.4162
+Low & middle income,LMY,2017,395627448.2542
+Late-demographic dividend,LTE,2017,338435468.1142
+Middle income,MIC,2017,392575270.2242
+Namibia,NAM,2017,176335.0
+Nicaragua,NIC,2017,190756.0
+El Salvador,SLV,2017,209903.0
+Suriname,SUR,2017,112318.0
+Upper middle income,UMC,2017,318463327.7942
+World,WLD,2017,749647168.9302
+Bulgaria,BGR,2018,241716.0
+Barbados,BRB,2018,100952.0
+Cabo Verde,CPV,2018,84041.0
+Cuba,CUB,2018,349722.0
+Curacao,CUW,2018,94607.0
+East Asia & Pacific (excluding high income),EAP,2018,301964578.711
+East Asia & Pacific,EAS,2018,438510957.494
+High income,HIC,2018,368063334.652
+IBRD only,IBD,2018,411694705.7172
+IDA & IBRD total,IBT,2018,441847851.3282
+Low & middle income,LMY,2018,418233912.5252
+Late-demographic dividend,LTE,2018,355383805.4642
+Middle income,MIC,2018,414584043.9852
+Namibia,NAM,2018,144109.0
+Nicaragua,NIC,2018,174403.0
+El Salvador,SLV,2018,230989.0
+Suriname,SUR,2018,110000.0
+Upper middle income,UMC,2018,335017325.9152
+World,WLD,2018,786889621.1772
+Bulgaria,BGR,2019,261934.0
+Barbados,BRB,2019,98435.0
+Cabo Verde,CPV,2019,91683.0
+Cuba,CUB,2019,322431.0
+East Asia & Pacific (excluding high income),EAP,2019,313565752.08
+East Asia & Pacific,EAS,2019,449307187.96
+High income,HIC,2019,372388253.441
+IBRD only,IBD,2019,427019987.41
+IDA & IBRD total,IBT,2019,458011532.02
+Low & middle income,LMY,2019,434004928.31
+Late-demographic dividend,LTE,2019,370253133.425
+Middle income,MIC,2019,430248111.47
+Namibia,NAM,2019,142957.0
+Nicaragua,NIC,2019,175370.0
+El Salvador,SLV,2019,249472.0
+Suriname,SUR,2019,109200.0
+Upper middle income,UMC,2019,344827756.47
+World,WLD,2019,806572710.751
+Bulgaria,BGR,2020,254571.0
+Barbados,BRB,2020,89460.0
+Cabo Verde,CPV,2020,76139.0
+Cuba,CUB,2020,255362.0
+Curacao,CUW,2020,89305.0
+East Asia & Pacific (excluding high income),EAP,2020,314788851.0
+East Asia & Pacific,EAS,2020,446717559.0
+High income,HIC,2020,363214061.875
+IBRD only,IBD,2020,425747075.625
+IDA & IBRD total,IBT,2020,454080042.875
+Low & middle income,LMY,2020,430391397.0
+Late-demographic dividend,LTE,2020,372781447.5
+Middle income,MIC,2020,427185660.0
+Namibia,NAM,2020,154207.0
+Nicaragua,NIC,2020,172798.0
+El Salvador,SLV,2020,228334.0
+Upper middle income,UMC,2020,342791511.25
+World,WLD,2020,793605458.875
+Bulgaria,BGR,2021,245160.0
+Barbados,BRB,2021,93899.0
+Cabo Verde,CPV,2021,79754.0
+Cuba,CUB,2021,246352.0
+Curacao,CUW,2021,92640.0
+East Asia & Pacific (excluding high income),EAP,2021,338477248.0
+East Asia & Pacific,EAS,2021,473917784.0
+High income,HIC,2021,384089842.0
+IBRD only,IBD,2021,459153816.0
+IDA & IBRD total,IBT,2021,487838448.0
+Low & middle income,LMY,2021,462414471.0
+Late-demographic dividend,LTE,2021,400013712.0
+Middle income,MIC,2021,459248773.0
+Namibia,NAM,2021,166545.0
+Nicaragua,NIC,2021,172544.0
+El Salvador,SLV,2021,294326.0
+Suriname,SUR,2021,109600.0
+Upper middle income,UMC,2021,367518511.0
+World,WLD,2021,846504313.0
+Bulgaria,BGR,2022,254854.0
+Barbados,BRB,2022,97000.0
+Cabo Verde,CPV,2022,82871.0
+Cuba,CUB,2022,261080.0
+Curacao,CUW,2022,96000.0
+Cayman Islands,CYM,2022,40829.0
+East Asia & Pacific (excluding high income),EAP,2022,349776434.0
+East Asia & Pacific,EAS,2022,482148456.0
+High income,HIC,2022,373200575.0
+IBRD only,IBD,2022,465619461.0
+IDA & IBRD total,IBT,2022,490879891.0
+Low & middle income,LMY,2022,466646907.0
+Late-demographic dividend,LTE,2022,406788120.0
+Middle income,MIC,2022,464273528.0
+Namibia,NAM,2022,160368.0
+Nicaragua,NIC,2022,153390.0
+El Salvador,SLV,2022,242307.0
+Suriname,SUR,2022,103874.0
+Upper middle income,UMC,2022,374207233.0
+World,WLD,2022,839847482.0

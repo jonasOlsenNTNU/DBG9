@@ -1,6 +1,10 @@
-from .maritime_section import create_maritime_group_section
 from ..data.owid_groups import build_group_timeseries
 from ..ui.storyboard_view import ShippingStoryboardView
+
+from .maritime_section import (
+    create_maritime_group_section,
+    create_trade_forecast_section,
+)
 
 
 class ShippingDashboardController:
@@ -23,9 +27,15 @@ class ShippingDashboardController:
             top_iso=top_iso,
             bottom_iso=bottom_iso,
         )
+        trade_forecast_section = create_trade_forecast_section(
+            top_iso=top_iso,
+            bottom_iso=bottom_iso,
+        )
 
         root_layout = self.view.layout
         root_layout.append(maritime_section)
+        root_layout.append(self.view.forecast_section)
+        root_layout.append(trade_forecast_section)
 
         self._layout = root_layout
 

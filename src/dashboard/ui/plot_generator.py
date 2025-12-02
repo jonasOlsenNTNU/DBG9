@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import panel as pn
+import hvplot.pandas
 
 TOP_COLOR = "#004c6d"
 BOTTOM_COLOR = "#2a9d8f"
@@ -508,8 +509,10 @@ def make_forecast_plot(df: pd.DataFrame, target: str = "Top 10 maritime (avg)"):
     mae_lin = float(np.mean(np.abs(test_y - lin_bt)))
     mae_naive = float(np.mean(np.abs(test_y - naive_bt)))
 
-    hist_years = df_recent["year"].values
-    hist_vals = df_recent[col].values
+
+    df_plot = df_recent[df_recent["year"] >= 2000].copy()
+    hist_years = df_plot["year"].values
+    hist_vals = df_plot[col].values
 
     plot_df = pd.DataFrame(
         {
@@ -523,29 +526,25 @@ def make_forecast_plot(df: pd.DataFrame, target: str = "Top 10 maritime (avg)"):
         }
     )
 
-    min_year_plot = max(int(hist_years.min()), last_year - 35)
     max_year_plot = last_year + horizon
 
-    color_key = {
-        "History": TOP_COLOR,
-        "Linear forecast": FORECAST_MAIN_COLOR,
-        "Naive forecast": FORECAST_NAIVE_COLOR,
-    }
-
-    forecast_plot = plot_df.hvplot.line(
+    forecast_plot = (plot_df.hvplot.line(
         x="year",
         y="value",
         by="series",
-        line_width=3,
-        color_key=color_key,
-    ).opts(
+        line_width=2,
+    )
+    .redim.range(year=(2000, max_year_plot))
+    .opts(
         xlabel="Year",
         ylabel=ylabel,
-        height=340,
+        height=320,
         show_grid=True,
         toolbar=None,
         legend_position="top_left",
-        xlim=(min_year_plot, max_year_plot),
-    )
+        shared_axes=False,
+        xlim=(2000, max_year_plot)
+    ))
 
     return forecast_plot, mae_naive, mae_lin
+
