@@ -22,8 +22,11 @@ CO2_PATH = DATA_DIR / "owid-co2-data.csv"
 
 @lru_cache()
 def _load_owid_co2_for_total() -> pd.DataFrame:
-    df = pd.read_csv(CO2_PATH, usecols=["country", "year", "co2"])
-    df = df.dropna(subset=["co2"])
+    df = pd.read_csv(
+        CO2_PATH,
+        usecols=["country", "year", "co2", "cement_co2", "coal_co2"],
+    )
+    df = df.dropna(subset=["year"])
     df["year"] = df["year"].astype(int)
     return df
 
@@ -113,9 +116,7 @@ def create_section_total(df: pd.DataFrame):
         ]
 
     group_labels = ["Top 10 maritime (avg)", "Bottom 10 coastal (avg)"]
-
     country_labels = sorted(co2_all["country"].unique().tolist())
-
     options = group_labels + country_labels
 
     series_selector = pn.widgets.MultiChoice(
@@ -126,11 +127,23 @@ def create_section_total(df: pd.DataFrame):
         width=400,
     )
 
-    total_dynamic_plot = pn.bind(
+    secondary_metric_select = pn.widgets.Select(
+        name="Additional emission variable (right axis)",
+        options={
+            "None": "none",
+            "Cement CO₂": "cement_co2",
+            "Coal CO₂": "coal_co2",
+        },
+        value="none",
+        width=280,
+    )
+
+    total_dual_axis_plot = pn.bind(
         make_total_co2_multi_plot,
         df_groups=df,
         df_countries=co2_all,
         selected_labels=series_selector,
+        secondary_metric=secondary_metric_select,
     )
 
     total_index_plot = pn.bind(
@@ -138,32 +151,25 @@ def create_section_total(df: pd.DataFrame):
         df_groups=df,
         df_countries=co2_all,
         selected_labels=series_selector,
-    )
-
-    heading = pn.pane.Markdown(
-        """
-### 1. Total CO₂ over time
-
-Top panel: choose **Top 10 / Bottom 10** and any single countries or regions to compare.  
-Bottom panel: indexed view (first year = 1) so we can compare **relative growth**.
-
-**Reflection – what this section shows**
-
-- The **Top-10 maritime economies** dominate total CO₂ levels, with steep growth after around 1950 and especially since 2000.  
-- The **Bottom-10 coastal economies** emit far less in absolute terms, but their indexed series reveals strong **relative growth** as late-comer maritime economies expand.  
-- Together, the panels support a narrative where high-maritime economies drive the current emissions stock, while growth in lower-tier coastal economies matters increasingly for future trends.
-        """,
-        sizing_mode="stretch_width",
+        secondary_metric=secondary_metric_select,
     )
 
     return pn.Column(
-        heading,
-        series_selector,
-        total_dynamic_plot,
+        pn.pane.Markdown(
+            "### 1. Total CO₂ over time\n"
+            "_Top: compare **total CO₂** for groups and countries. Optionally add "
+            "cement or coal CO₂ on the right-hand y-axis._  \n"
+            "_Bottom: indexed view (first non-zero = 1) for the **same variables** "
+            "and selections._"
+        ),
+        pn.Row(series_selector, secondary_metric_select),
+        total_dual_axis_plot,
+        pn.pane.Markdown("_Indexed growth (first non-zero = 1)_"),
         total_index_plot,
         sizing_mode="stretch_width",
         css_classes=["story-step-card"],
     )
+
 
 def create_section_intensity(df: pd.DataFrame):
     co2_int = _load_owid_co2_for_intensity()

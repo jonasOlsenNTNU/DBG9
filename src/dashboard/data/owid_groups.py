@@ -48,6 +48,8 @@ def _load_owid() -> pd.DataFrame:
             "co2",
             "co2_per_capita",
             "co2_per_gdp",
+            "cement_co2",
+            "coal_co2",
         ]
     ]
 
@@ -58,9 +60,6 @@ def _group_avg(df: pd.DataFrame, iso_list: List[str], col: str, label: str) -> p
 
 
 def build_group_timeseries() -> Tuple[pd.DataFrame, List[str], List[str]]:
-    """
-    Build time series for Top 10 vs Bottom 10 groups using ONLY OWID data.
-    """
     owid = _load_owid()
     selected = owid[owid["iso_code"].isin(TOP10_ISO + BOTTOM10_ISO)].copy()
 
@@ -71,6 +70,11 @@ def build_group_timeseries() -> Tuple[pd.DataFrame, List[str], List[str]]:
     co2gdp_top = _group_avg(selected, TOP10_ISO, "co2_per_gdp", "co2gdp_top10")
     co2gdp_bottom = _group_avg(selected, BOTTOM10_ISO, "co2_per_gdp", "co2gdp_bottom10")
 
+    cement_top = _group_avg(selected, TOP10_ISO, "cement_co2", "cement_co2_top10")
+    cement_bottom = _group_avg(selected, BOTTOM10_ISO, "cement_co2", "cement_co2_bottom10")
+    coal_top = _group_avg(selected, TOP10_ISO, "coal_co2", "coal_co2_top10")
+    coal_bottom = _group_avg(selected, BOTTOM10_ISO, "coal_co2", "coal_co2_bottom10")
+
     df = (
         pd.concat(
             [
@@ -80,23 +84,23 @@ def build_group_timeseries() -> Tuple[pd.DataFrame, List[str], List[str]]:
                 co2pc_bottom,
                 co2gdp_top,
                 co2gdp_bottom,
+                cement_top,
+                cement_bottom,
+                coal_top,
+                coal_bottom,
             ],
             axis=1,
         )
+
         .reset_index()
         .sort_values("year")
     )
 
-    # ratio: hvor mange ganger høyere Top 10 er enn Bottom 10
     df["co2_ratio_top_over_bottom"] = df["co2_top10"] / df["co2_bottom10"]
     base_top = df["co2_top10"].iloc[0]
     base_bottom = df["co2_bottom10"].iloc[0]
     df["co2_top10_index"] = df["co2_top10"] / base_top
     df["co2_bottom10_index"] = df["co2_bottom10"] / base_bottom
-
-    # keep rows even if some metrics are missing; plots can handle NaNs
-    # (remove this line)
-    # df = df.dropna()
 
     return df, TOP10_ISO, BOTTOM10_ISO
 

@@ -15,43 +15,79 @@ FORECAST_SERIES_MAP = {
     "Bottom 10 coastal (avg)": ("co2_bottom10", "Bottom 10 total CO₂ (Mt)"),
 }
 
+TOTAL_METRIC_CONFIG = {
+    "co2": {
+        "top_col": "co2_top10",
+        "bottom_col": "co2_bottom10",
+        "ylabel": "Total CO₂ (Mt, avg per country)",
+    },
+    "cement_co2": {
+        "top_col": "cement_co2_top10",
+        "bottom_col": "cement_co2_bottom10",
+        "ylabel": "Cement CO₂ (Mt, avg per country)",
+    },
+    "coal_co2": {
+        "top_col": "coal_co2_top10",
+        "bottom_col": "coal_co2_bottom10",
+        "ylabel": "Coal CO₂ (Mt, avg per country)",
+    },
+}
+
+
 
 
 def _total_series_for_label(
         df_groups: pd.DataFrame,
         df_countries: pd.DataFrame,
         label: str,
+        metric: str = "co2",
 ):
+    config = TOTAL_METRIC_CONFIG.get(metric, TOTAL_METRIC_CONFIG["co2"])
+
     if label == "Top 10 maritime (avg)":
+        col = config["top_col"]
         series_df = (
-            df_groups[["year", "co2_top10"]]
-            .rename(columns={"co2_top10": "co2"})
+            df_groups[["year", col]]
+            .rename(columns={col: "value"})
             .copy()
         )
         color = TOP_COLOR
 
     elif label == "Bottom 10 coastal (avg)":
+        col = config["bottom_col"]
         series_df = (
-            df_groups[["year", "co2_bottom10"]]
-            .rename(columns={"co2_bottom10": "co2"})
+            df_groups[["year", col]]
+            .rename(columns={col: "value"})
             .copy()
         )
         color = BOTTOM_COLOR
 
     else:
-        series_df = df_countries[df_countries["country"] == label][
-            ["year", "co2"]
-        ].copy()
+        if metric in df_countries.columns:
+            src_col = metric
+        else:
+            src_col = "co2"
+
+        series_df = (
+            df_countries[df_countries["country"] == label][["year", src_col]]
+            .rename(columns={src_col: "value"})
+            .copy()
+        )
         color = None
 
-    series_df = series_df.dropna(subset=["co2"])
+    series_df = series_df.dropna(subset=["value"])
     return series_df, color
+
+
+
 
 def make_total_co2_multi_plot(
         df_groups: pd.DataFrame,
         df_countries: pd.DataFrame,
         selected_labels: list[str],
+        secondary_metric: str = "none",
 ):
+
     if not selected_labels:
         return pn.pane.Markdown("⚠️ Select at least one group or country.")
 
@@ -61,35 +97,68 @@ def make_total_co2_multi_plot(
         (df_countries["year"] >= min_year) & (df_countries["year"] <= max_year)
         ]
 
-    curves = []
+    primary_curves = []
+    secondary_curves = []
+
     for label in selected_labels:
-        series_df, color = _total_series_for_label(df_groups, df_c, label)
-        if series_df.empty:
-            continue
-
-        kwargs = dict(
-            x="year",
-            y="co2",
-            label=label,
-            line_width=2,
+        series_total, color = _total_series_for_label(
+            df_groups, df_c, label, metric="co2"
         )
-        if color is not None:
-            kwargs["color"] = color
+        if not series_total.empty:
+            kwargs = dict(
+                x="year",
+                y="value",
+                label=f"{label} – total CO₂",
+                line_width=2,
+            )
+            if color is not None:
+                kwargs["color"] = color
+            primary_curves.append(series_total.hvplot.line(**kwargs))
 
-        curves.append(series_df.hvplot.line(**kwargs))
+        if secondary_metric != "none":
+            series_sec, _ = _total_series_for_label(
+                df_groups, df_c, label, metric=secondary_metric
+            )
+            if not series_sec.empty:
+                sec_label = secondary_metric.replace("_", " ")
+                sec_curve = series_sec.hvplot.line(
+                    x="year",
+                    y="value",
+                    label=f"{label} – {sec_label}",
+                    line_width=2,
+                    line_dash="dashed",
+                )
+                secondary_curves.append(sec_curve)
 
-    if not curves:
-        return pn.pane.Markdown(
-            "⚠️ No total CO₂ data for the current selection."
+    if not primary_curves:
+        return pn.pane.Markdown("⚠️ No data for this selection.")
+
+    primary_overlay = primary_curves[0]
+    for c in primary_curves[1:]:
+        primary_overlay = primary_overlay * c
+
+    if not secondary_curves or secondary_metric == "none":
+        return primary_overlay.opts(
+            xlabel="Year",
+            ylabel=TOTAL_METRIC_CONFIG["co2"]["ylabel"],
+            height=320,
+            show_grid=True,
+            toolbar=None,
+            shared_axes=False,
+            framewise=True,
+            legend_position="top_left",
+            xlim=(min_year, max_year),
         )
 
-    plot = curves[0]
-    for c in curves[1:]:
-        plot = plot * c
+    secondary_overlay = secondary_curves[0]
+    for c in secondary_curves[1:]:
+        secondary_overlay = secondary_overlay * c
+
+    plot = (primary_overlay * secondary_overlay).opts(multi_y=True)
 
     return plot.opts(
         xlabel="Year",
-        ylabel="Total CO₂ (Mt, avg per country)",
+        ylabel=TOTAL_METRIC_CONFIG["co2"]["ylabel"],
         height=320,
         show_grid=True,
         toolbar=None,
@@ -99,15 +168,12 @@ def make_total_co2_multi_plot(
         xlim=(min_year, max_year),
     )
 
-
-
-
 def make_total_co2_index_multi_plot(
         df_groups: pd.DataFrame,
         df_countries: pd.DataFrame,
         selected_labels: list[str],
+        secondary_metric: str = "none",
 ):
-
     if not selected_labels:
         return pn.pane.Markdown("⚠️ Select at least one group or country.")
 
@@ -117,39 +183,86 @@ def make_total_co2_index_multi_plot(
         (df_countries["year"] >= min_year) & (df_countries["year"] <= max_year)
         ]
 
-    curves = []
+    primary_curves = []
+    secondary_curves = []
+
     for label in selected_labels:
-        series_df, color = _total_series_for_label(df_groups, df_c, label)
+        series_df, color = _total_series_for_label(
+            df_groups, df_c, label, metric="co2"
+        )
         if series_df.empty:
             continue
 
-        non_zero = series_df.loc[series_df["co2"] > 0, "co2"]
+        non_zero = series_df[series_df["value"] > 0]
         if non_zero.empty:
             continue
-        base = non_zero.iloc[0]
+        base = non_zero.iloc[0]["value"]
 
         idx_df = series_df.copy()
-        idx_df["index"] = idx_df["co2"] / base
+        idx_df["index"] = idx_df["value"] / base
 
         kwargs = dict(
             x="year",
             y="index",
-            label=label,
+            label=f"{label} – total CO₂",
             line_width=2,
         )
         if color is not None:
             kwargs["color"] = color
+        primary_curves.append(idx_df.hvplot.line(**kwargs))
 
-        curves.append(idx_df.hvplot.line(**kwargs))
-
-    if not curves:
+    if not primary_curves:
         return pn.pane.Markdown(
             "⚠️ No data to compute indexed growth for this selection."
         )
 
-    plot = curves[0]
-    for c in curves[1:]:
-        plot = plot * c
+    primary_overlay = primary_curves[0]
+    for c in primary_curves[1:]:
+        primary_overlay = primary_overlay * c
+
+    if secondary_metric != "none":
+        for label in selected_labels:
+            series_df, _ = _total_series_for_label(
+                df_groups, df_c, label, metric=secondary_metric
+            )
+            if series_df.empty:
+                continue
+
+            non_zero = series_df[series_df["value"] > 0]
+            if non_zero.empty:
+                continue
+            base = non_zero.iloc[0]["value"]
+
+            idx_df = series_df.copy()
+            idx_df["index"] = idx_df["value"] / base
+
+            sec_label = secondary_metric.replace("_", " ")
+            secondary_curves.append(
+                idx_df.hvplot.line(
+                    x="year",
+                    y="index",
+                    label=f"{label} – {sec_label} (index)",
+                    line_width=2,
+                    line_dash="dashed",
+                )
+            )
+
+    if not secondary_curves or secondary_metric == "none":
+        return primary_overlay.opts(
+            xlabel="Year",
+            ylabel="Indexed total CO₂ (first non-zero = 1)",
+            height=380,
+            show_grid=True,
+            toolbar=None,
+            legend_position="top_left",
+            xlim=(min_year, max_year),
+        )
+
+    secondary_overlay = secondary_curves[0]
+    for c in secondary_curves[1:]:
+        secondary_overlay = secondary_overlay * c
+
+    plot = (primary_overlay * secondary_overlay).opts(multi_y=True)
 
     return plot.opts(
         xlabel="Year",
@@ -160,6 +273,7 @@ def make_total_co2_index_multi_plot(
         legend_position="top_left",
         xlim=(min_year, max_year),
     )
+
 
 
 

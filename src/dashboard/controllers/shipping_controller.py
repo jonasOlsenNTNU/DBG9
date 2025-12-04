@@ -1,3 +1,4 @@
+from .maritime_section import create_maritime_group_section
 from ..data.owid_groups import build_group_timeseries
 from ..ui.storyboard_view import ShippingStoryboardView
 

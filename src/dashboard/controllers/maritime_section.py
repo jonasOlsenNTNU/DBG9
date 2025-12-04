@@ -3,7 +3,7 @@ import pandas as pd
 import panel as pn
 import numpy as np
 from bokeh.plotting import figure
-from idna import ulabel
+
 
 TOP_COLOR = "#004c6d"
 BOTTOM_COLOR = "#2a9d8f"
@@ -17,6 +17,11 @@ CO2_PATH = DATA_DIR / "owid-co2-data.csv"
 COUNTRY_COL = "Country Name"
 CODE_COL = "Country Code"
 
+EMISSION_LABELS = {
+    "co2": "Total CO₂",
+    "cement_co2": "Cement CO₂",
+    "coal_co2": "Coal CO₂",
+}
 
 def load_port_long():
     df_raw = pd.read_csv(PORT_PATH, skiprows=4)
@@ -32,17 +37,17 @@ def load_port_long():
     df_long["year"] = df_long["year"].astype(int)
     df_long = df_long.dropna(subset=["port_traffic"])
     df_long = df_long[df_long["port_traffic"] > 0]
-    df_long = df_long[df_long["year"].between(2000, 2024)]
     return df_long
 
 
 def load_co2():
     df = pd.read_csv(CO2_PATH)
-    df = df[["iso_code", "year", "co2"]]
+    df = df[["iso_code", "year", "co2", "cement_co2", "coal_co2"]]
     df = df.dropna(subset=["co2"])
     df["year"] = df["year"].astype(int)
     df = df[df["year"].between(2000, 2024)]
     return df
+
 
 def create_trade_forecast_section(top_iso, bottom_iso, horizon: int = 3):
     df_port = load_port_long()
@@ -98,7 +103,7 @@ of **{mae_trade:,.1f} Mt** for the trade-based model.
         css_classes=["story-step-card"],
     )
 
-def build_group_timeseries(df_port, df_co2, iso_codes):
+def build_group_timeseries(df_port, df_co2, iso_codes, metric: str = "co2"):
     if not iso_codes:
         return pd.DataFrame(columns=["year", "co2_norm", "port_norm"])
 
@@ -109,8 +114,9 @@ def build_group_timeseries(df_port, df_co2, iso_codes):
     )
     co2_group = (
         df_co2[df_co2["iso_code"].isin(iso_codes)]
-        .groupby("year", as_index=False)["co2"]
+        .groupby("year", as_index=False)[metric]
         .sum()
+        .rename(columns={metric: "co2"})
     )
 
     df_merged = pd.merge(port_group, co2_group, on="year", how="inner")
@@ -121,6 +127,47 @@ def build_group_timeseries(df_port, df_co2, iso_codes):
     df_merged["co2_norm"] = df_merged["co2"] / df_merged["co2"].max()
     df_merged["port_norm"] = df_merged["port_traffic"] / df_merged["port_traffic"].max()
     return df_merged
+
+def build_group_residual_timeseries(df_port, df_co2, iso_codes):
+    if not iso_codes:
+        return pd.DataFrame(columns=["year", "co2_norm", "port_norm"])
+
+
+    port_group = (
+        df_port[df_port[CODE_COL].isin(iso_codes)]
+        .groupby("year", as_index=False)["port_traffic"]
+        .sum()
+    )
+
+    co2_group = df_co2[df_co2["iso_code"].isin(iso_codes)].copy()
+    for col in ["co2", "cement_co2", "coal_co2"]:
+        if col in co2_group.columns:
+            co2_group[col] = co2_group[col].fillna(0)
+
+    co2_group = (
+        co2_group
+        .groupby("year", as_index=False)[["co2", "cement_co2", "coal_co2"]]
+        .sum()
+    )
+
+    co2_group["co2_residual"] = (
+            co2_group["co2"] - co2_group["cement_co2"] - co2_group["coal_co2"]
+    )
+    co2_group["co2_residual"] = co2_group["co2_residual"].clip(lower=0)
+
+    co2_resid = co2_group[["year", "co2_residual"]].rename(
+        columns={"co2_residual": "co2"}
+    )
+
+    df_merged = pd.merge(port_group, co2_resid, on="year", how="inner")
+
+    if df_merged.empty:
+        return pd.DataFrame(columns=["year", "co2_norm", "port_norm"])
+
+    df_merged["co2_norm"] = df_merged["co2"] / df_merged["co2"].max()
+    df_merged["port_norm"] = df_merged["port_traffic"] / df_merged["port_traffic"].max()
+    return df_merged
+
 
 def make_trade_forecast_plot(
         df_port: pd.DataFrame,
@@ -210,11 +257,15 @@ def make_group_plot(df_group, title):
     if df_group.empty:
         return pn.pane.Markdown(f"**No data available for: {title}**")
 
+    year_min = int(df_group["year"].min())
+    year_max = int(df_group["year"].max())
+
     co2_curve = df_group.hvplot.line(
         x="year",
         y="co2_norm",
-        label="CO₂ (index)",
+        label="Emissions (index)",
         line_width=2,
+        color=TOP_COLOR,
     )
     port_curve = df_group.hvplot.line(
         x="year",
@@ -222,6 +273,7 @@ def make_group_plot(df_group, title):
         label="Container port traffic (index)",
         line_width=2,
         line_dash="dashed",
+        color=PORT_COLOR,
     )
 
     overlay = co2_curve * port_curve
@@ -231,12 +283,14 @@ def make_group_plot(df_group, title):
         xlabel="Year",
         ylabel="Index (0–1)",
         height=320,
-        xlim=(2000, 2024),
+        xlim=(year_min, year_max),
         shared_axes=False,
         framewise=True,
         show_grid=True,
         toolbar="disable",
+        legend_position="top_right",
     )
+
 def interpret_correlation(r: float) -> str:
 
     if r > 0.7:
@@ -276,8 +330,8 @@ def build_correlation_section(df_group: pd.DataFrame, group_name: str):
         x="port_traffic",
         y="co2",
         xlabel="Container port traffic (TEU or index)",
-        ylabel="Total CO₂ (Mt or index)",
-        title=f"{group_name} — CO₂ vs port traffic",
+        ylabel="Emissions (Mt or index)",
+        title=f"{group_name} — emissions vs port traffic",
         size=7,
         color=TOP_COLOR,
     )
@@ -398,84 +452,170 @@ def create_maritime_group_section(top_iso, bottom_iso):
     df_port = load_port_long()
     df_co2 = load_co2()
 
-    top_ts = build_group_timeseries(df_port, df_co2, top_iso)
-    bottom_ts = build_group_timeseries(df_port, df_co2, bottom_iso)
+    group_metric_labels = {
+        "co2": "Total CO₂",
+        "cement_co2": "Cement CO₂",
+        "coal_co2": "Coal CO₂",
+    }
 
-    top_plot = make_group_plot(
-        top_ts,
-        "Top 10 maritime countries – CO₂ vs container port traffic (2000–2024)",
+
+    group_metric_select = pn.widgets.Select(
+        name="Emission variable (groups)",
+        options={
+            "Total CO₂": "co2",
+            "Cement CO₂": "cement_co2",
+            "Coal CO₂": "coal_co2",
+        },
+        value="co2",
+        width=260,
     )
-    bottom_plot = make_group_plot(
-        bottom_ts,
-        "Bottom 10 maritime countries – CO₂ vs container port traffic (2000–2024)",
+
+    def _group_ts(iso_list, title_prefix, metric: str):
+        ts = build_group_timeseries(df_port, df_co2, iso_list, metric=metric)
+        label = group_metric_labels.get(metric, "Total CO₂")
+        title = f"{title_prefix} – {label} vs container port traffic"
+        return make_group_plot(ts, title)
+
+    top_plot = pn.bind(
+        _group_ts,
+        iso_list=top_iso,
+        title_prefix="Top 10 maritime countries",
+        metric=group_metric_select,
+    )
+    bottom_plot = pn.bind(
+        _group_ts,
+        iso_list=bottom_iso,
+        title_prefix="Bottom 10 maritime countries",
+        metric=group_metric_select,
     )
 
     time_series_card = pn.Column(
-        "## CO₂ vs container port traffic – Top 10 vs Bottom 10 (2000–2024)",
+        "## Emissions vs container port traffic – Top 10 vs Bottom 10",
+        pn.Row(group_metric_select),
         top_plot,
         bottom_plot,
         sizing_mode="stretch_width",
         css_classes=["story-step-card"],
     )
 
+    top_ts_total = build_group_timeseries(df_port, df_co2, top_iso, metric="co2")
+    bottom_ts_total = build_group_timeseries(df_port, df_co2, bottom_iso, metric="co2")
 
-    corr_top = build_correlation_section(top_ts, "Top 10 maritime economies")
-    corr_bottom = build_correlation_section(bottom_ts, "Bottom 10 maritime economies")
+    corr_top_total = build_correlation_section(
+        top_ts_total, "Top 10 maritime economies – total CO₂"
+    )
+    corr_bottom_total = build_correlation_section(
+        bottom_ts_total, "Bottom 10 maritime economies – total CO₂"
+    )
+
+    top_ts_resid = build_group_residual_timeseries(df_port, df_co2, top_iso)
+    bottom_ts_resid = build_group_residual_timeseries(df_port, df_co2, bottom_iso)
+
+    corr_top_resid = build_correlation_section(
+        top_ts_resid,
+        "Top 10 maritime economies – CO₂ excluding cement & coal",
+    )
+    corr_bottom_resid = build_correlation_section(
+        bottom_ts_resid,
+        "Bottom 10 maritime economies – CO₂ excluding cement & coal",
+    )
 
     corr_card = pn.Column(
         "## Correlation between maritime activity and CO₂ emissions (groups)",
         pn.pane.Markdown(
-            "We compute Pearson correlations and show scatter plots with regression "
-            "lines to quantify how strongly container port traffic is linked to CO₂ "
-            "emissions for the Top 10 and Bottom 10 maritime country groups."
+            "First we use **total CO₂**; then we recompute the correlation after "
+            "subtracting cement & coal emissions to see how much the relationship "
+            "changes when heavy industry and coal power are removed."
         ),
-        corr_top,
-        corr_bottom,
+        corr_top_total,
+        corr_bottom_total,
+        pn.pane.Markdown("### Correlation when excluding cement & coal"),
+        corr_top_resid,
+        corr_bottom_resid,
         sizing_mode="stretch_width",
         css_classes=["story-step-card"],
     )
 
+    iso_with_port = set(df_port[CODE_COL].unique())
+    iso_with_co2 = set(df_co2["iso_code"].unique())
+    iso_total = sorted(iso_with_port & iso_with_co2)
 
-    countries = (
-        load_port_long()[[COUNTRY_COL, CODE_COL]]
-        .drop_duplicates()
-        .sort_values(COUNTRY_COL)
+    mask_sectors = df_co2[["cement_co2", "coal_co2"]].notna().any(axis=1)
+    iso_with_sectors = set(df_co2.loc[mask_sectors, "iso_code"].unique())
+    iso_residual = sorted(iso_with_port & iso_with_sectors)
+
+    per_country_metric_select = pn.widgets.Select(
+        name="Emission variable (per country)",
+        options={
+            "Total CO₂": "total",
+            "Total CO₂ (excl. cement & coal)": "residual",
+        },
+        value="total",
+        width=280,
     )
-    iso_to_name = dict(zip(countries[CODE_COL], countries[COUNTRY_COL]))
-    valid_iso = sorted(
-        set(countries[CODE_COL]) & set(df_co2["iso_code"].unique())
-    )
-    options = {f"{iso_to_name[iso]} ({iso})": iso for iso in valid_iso}
 
     country_select = pn.widgets.Select(
-        name="Country for port traffic vs CO₂",
-        options=options,
-        value=next(iter(options.values())) if options else None,
-        width=320,
+        name="Country (ISO code)",
+        options=iso_total,
+        value=iso_total[0] if iso_total else None,
+        width=200,
     )
 
-    def _country_ts(iso: str):
-        ts = build_country_timeseries(df_port, df_co2, iso)
-        name = iso_to_name.get(iso, iso)
-        title = f"{name} – CO₂ vs container port traffic (2000–2024)"
+    def _update_country_options(event):
+        if event.new == "total":
+            country_select.options = iso_total
+            if country_select.value not in iso_total and iso_total:
+                country_select.value = iso_total[0]
+        else:
+            country_select.options = iso_residual
+            if country_select.value not in iso_residual and iso_residual:
+                country_select.value = iso_residual[0]
+
+    per_country_metric_select.param.watch(_update_country_options, "value")
+
+    def _country_ts(iso: str, mode: str):
+        if not iso:
+            return pn.pane.Markdown("⚠️ Select a country.")
+        if mode == "total":
+            ts = build_country_timeseries(df_port, df_co2, iso, metric="co2")
+            label = "Total CO₂"
+        else:
+            ts = build_group_residual_timeseries(df_port, df_co2, [iso])
+            label = "Total CO₂ (excluding cement & coal)"
+        title = f"{iso} – {label} vs container port traffic"
         return make_group_plot(ts, title)
 
-    def _country_corr(iso: str):
-        ts = build_country_timeseries(df_port, df_co2, iso)
-        name = iso_to_name.get(iso, iso)
+    def _country_corr(iso: str, mode: str):
+        if not iso:
+            return pn.pane.Markdown("⚠️ Select a country.")
+        if mode == "total":
+            ts = build_country_timeseries(df_port, df_co2, iso, metric="co2")
+            label = "Total CO₂"
+        else:
+            ts = build_group_residual_timeseries(df_port, df_co2, [iso])
+            label = "Total CO₂ (excluding cement & coal)"
+        name = f"{iso} – {label}"
         return build_correlation_section(ts, name)
 
-    country_ts_panel = pn.bind(_country_ts, iso=country_select)
-    country_corr_panel = pn.bind(_country_corr, iso=country_select)
+    country_ts_panel = pn.bind(
+        _country_ts,
+        iso=country_select,
+        mode=per_country_metric_select,
+    )
+    country_corr_panel = pn.bind(
+        _country_corr,
+        iso=country_select,
+        mode=per_country_metric_select,
+    )
 
     per_country_card = pn.Column(
-        "## Per-country CO₂ vs container port traffic",
+        "## Per-country emissions vs container port traffic",
         pn.pane.Markdown(
-            "Select a country to compare its **container port traffic** with its "
-            "total **CO₂ emissions**. Both the time-series plot and the correlation "
-            "analysis below update to reflect the selected country."
+            "Choose whether to look at **total CO₂** (all countries with data) or "
+            "**total CO₂ excluding cement & coal** (subset with sector data). "
+            "Each country uses its own time span based on available data."
         ),
-        country_select,
+        pn.Row(country_select, per_country_metric_select),
         country_ts_panel,
         country_corr_panel,
         sizing_mode="stretch_width",
@@ -489,7 +629,12 @@ def create_maritime_group_section(top_iso, bottom_iso):
         sizing_mode="stretch_width",
     )
 
-def build_country_timeseries(df_port: pd.DataFrame, df_co2: pd.DataFrame, iso_code: str) -> pd.DataFrame:
+def build_country_timeseries(
+        df_port: pd.DataFrame,
+        df_co2: pd.DataFrame,
+        iso_code: str,
+        metric: str = "co2",
+    ) -> pd.DataFrame:
     if not iso_code:
         return pd.DataFrame(columns=["year", "co2_norm", "port_norm"])
-    return build_group_timeseries(df_port, df_co2, [iso_code])
+    return build_group_timeseries(df_port, df_co2, [iso_code], metric=metric)
