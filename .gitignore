@@ -34,3 +34,6 @@ htmlcov/
 # --- Data Files ---
 data/*
 !data/.gitkeep
+
+# --- Other ---
+feature_plan.md
