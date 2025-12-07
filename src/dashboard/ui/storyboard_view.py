@@ -9,9 +9,10 @@ from .card_generator import (
     create_controls_row,
     create_section_total,
     create_section_intensity,
-    create_section_ratio,
     create_forecast_section,
+    create_next_tabs_card,
 )
+
 
 pn.extension("tabulator")
 
@@ -39,12 +40,14 @@ class ShippingStoryboardView:
         controls_row = create_controls_row(self.intensity_metric_select)
 
         section_total = create_section_total(self.data)
+        tabs_overview = create_next_tabs_card()
         section_intensity = create_section_intensity(self.data)
         self.forecast_section = create_forecast_section(self.data)
 
         self._layout = pn.Column(
             header,
             key_messages,
+            tabs_overview,
             controls_row,
             section_total,
             section_intensity,

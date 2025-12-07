@@ -1,10 +1,9 @@
-# src/dashboard/ui/sectoral_view.py
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 import panel as pn
-import hvplot.pandas  # noqa: F401
+import hvplot.pandas
 from ..utils.load_css import load_css
 
 
@@ -13,10 +12,9 @@ def create_sectoral_breakdown(
         maritime_tier: str,
         normalize: bool = False,
 ) -> pn.Column:
-    """
-    Stacked area chart of CO₂ by sector for a given maritime tier.
-    X-axis is restricted to 2000+ (port+CO₂ era).
-    """
+
+
+
     sub = df[df["maritime_tier"] == maritime_tier].copy()
     if sub.empty:
         return pn.Column(f"No data for tier '{maritime_tier}'.")
@@ -122,9 +120,6 @@ def create_maritime_share_plot(df: pd.DataFrame) -> pn.Column:
 
 
 def create_sectoral_tab(df: pd.DataFrame) -> pn.Column:
-    """
-    Tab: Sectoral breakdown.
-    """
     load_css("main_view.css")
 
     maritime_tiers = sorted(df["maritime_tier"].dropna().unique())

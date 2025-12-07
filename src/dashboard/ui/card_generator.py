@@ -53,26 +53,23 @@ def _load_owid_co2_for_intensity() -> pd.DataFrame:
 def create_header():
     return pn.pane.Markdown(
         """
-# How do CO₂ emissions differ between highly maritime and low-maritime economies?
+# How can we fight greenhouse emissions in maritime economies?
 
-With global CO₂ emissions still rising, we need to understand **what is driving that increase**.  
-In this project we zoom in on **maritime economies** – countries whose growth is tightly connected to seaborne trade – and ask:
+Global CO₂ emissions are still rising, but not all countries contribute – or improve – in the same way.  
+This project asks: **how can maritime economies reduce greenhouse emissions while their ports keep growing?**
 
-> **How strongly are national CO₂ emissions linked to container port activity, and is that relationship changing over time?**
+We combine OWID CO₂ data, container port traffic and a new maritime intensity classification to explore:
 
-Using the OWID CO₂ dataset together with container port traffic data, the dashboard walks through:
+- Which countries **decouple** port growth from CO₂ (ports up while emissions stabilise or fall).  
+- How emissions differ between **high-maritime and low-maritime economies**, using Top-10 and Bottom-10 groups.  
+- Which structural factors – energy mix, sector composition and CO₂ efficiency per TEU – are linked to lower emissions.  
 
-- **Total CO₂ emissions** and how they evolve for Top-10 maritime vs Bottom-10 coastal economies.  
-- **Emission intensity** (per capita, per 100 000 people, and per unit GDP).  
-- **Emissions vs container port traffic**, both as time series and as statistical correlations.  
-- **Per-country stories**, where you can zoom in on individual economies.
+For the overview sections we build two data-driven comparison groups:
 
-Throughout the overview we define:
+- **Top-10 maritime economies** – the 10 countries with the highest average container port traffic (TEU) between 2000 and the latest year in our dataset.  
+- **Bottom-10 coastal economies** – 10 coastal countries with non-zero port traffic near the lower end of the same distribution.  
 
-- **Top-10 maritime economies** as the 10 countries with the highest average container port traffic (TEU) between 2000 and the latest year in our dataset.  
-- **Bottom-10 coastal economies** as 10 coastal countries with non-zero port traffic near the lower end of the same distribution.  
-
-These are **data-driven groups computed from our dataset**, not an official OECD or IMO ranking, and they are used consistently in all overview graphs and the maritime detail sections.
+These groups are computed from our dataset (not an official OECD or IMO ranking) and are reused across the overview graphs and detailed maritime tabs.
         """,
         sizing_mode="stretch_width",
         css_classes=["story-header"],
@@ -141,16 +138,53 @@ def create_key_messages():
         """,
         sizing_mode="stretch_width",
     )
+def create_next_tabs_card() -> pn.Column:
+    """
+    Overview card that explains what the other dashboard tabs do.
+    """
+    text = pn.pane.Markdown(
+        """
+### Explnation of the next tabs
+
+After this overview you can dive into several more tabs that provide tools for further analysis:
+
+2. **Decoupling explorer**  
+   Classify countries into **strong decouplers, weak decouplers and “brown growth”**
+   based on how port traffic and CO₂ have grown since 2000, and use timelines to see
+   when a country starts (or stops) decoupling.
+   
+3. **Success factors**  
+   Explore which structural variables (energy per GDP, fuel mix, etc.) correlate most
+   strongly with **low CO₂ per TEU**, and inspect simple regression lines for potential
+   “levers” behind maritime decarbonisation.
+   
+4. **Peer benchmarking**  
+   Pick a country and compare it with **similar peers** in terms of GDP and port size,
+   using a compact table and narrative summary to highlight who is already doing better
+   at keeping CO₂ per TEU down.
+
+5. **Efficiency frontier**  
+   For a chosen year, plot CO₂ per TEU against port traffic and draw a simple
+   **“best-practice” frontier**. Countries close to the line are efficient; those far
+   above it have room to improve maritime carbon efficiency.
+   
+6. **Sectoral breakdown**  
+   Decompose CO₂ into **power, industry, transport, buildings, etc.** for different
+   maritime tiers, and see how big a share of total emissions comes from explicitly
+   **maritime-related CO₂** in the latest year.
+
+Together with the **2030 scenario tool** at the end, these tabs let you go from
+high-level group comparisons to detailed, country-by-country stories about how
+maritime trade and CO₂ emissions are linked – and how that link might be weakened.
+        """,
+        sizing_mode="stretch_width",
+    )
+
+    return pn.Column(text, sizing_mode="stretch_width", css_classes=["story-step-card"])
 
 
 def create_controls_row(intensity_widget: pn.widgets.Select):
-    return pn.Row(
-        pn.pane.Markdown(
-            "Intensity metric (section 2):", sizing_mode="fixed"
-        ),
-        intensity_widget,
-        sizing_mode="stretch_width",
-    )
+    return pn.Row(sizing_mode="stretch_width")
 
 
 def create_section_total(df: pd.DataFrame):
