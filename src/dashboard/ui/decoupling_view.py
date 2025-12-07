@@ -7,6 +7,7 @@ import pandas as pd
 import panel as pn
 import holoviews as hv
 import hvplot.pandas  # noqa: F401
+from ..utils.load_css import load_css
 
 pn.extension()
 
@@ -143,8 +144,8 @@ def create_decoupling_scatter(
             xlabel="Port traffic CAGR (%)",
             ylabel="CO₂ CAGR (%)",
             title="Port vs CO₂ growth (CAGR)",
-            width=1350,   # <–– wider
-            height=600,   # <–– taller
+            width=1000,   # <–– wider
+            height=450,   # <–– taller
             responsive=False,
         )
 
@@ -168,12 +169,18 @@ def create_decoupling_scatter(
         return _decoupling_insights(df, tuple(period_val), list(tiers))
 
     return pn.Column(
-        pn.pane.Markdown("## Decoupling explorer\nHow port growth relates to CO₂ growth."),
+        pn.pane.Markdown(
+            "### Decoupling map\n"
+            "_How fast can ports grow relative to CO₂?_",
+            sizing_mode="stretch_width",
+        ),
         pn.Row(year_slider, tier_select),
         scatter_view,
         insights_view,
         sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
     )
+
 
 
 def create_decoupling_timeline(df: pd.DataFrame, iso_code: str) -> pn.Column:
@@ -216,19 +223,31 @@ def create_decoupling_timeline(df: pd.DataFrame, iso_code: str) -> pn.Column:
 
     curves = curves.redim.range(year=(2000, x_max)).opts(shared_axes=False)
 
-    return pn.Column(curves, sizing_mode="stretch_both")
+    return pn.Column(curves, sizing_mode="stretch_width")
+
 
 
 def create_decoupling_tab(df: pd.DataFrame) -> pn.Column:
     """
-    Full Decoupling Explorer tab:
-    - Top: filters + scatter + key insights
-    - Bottom: Country timeline selector + big Port vs CO₂ over time graph.
+    Tab 2: Decoupling Explorer.
     """
-    # Top section: title + filters + scatter + key insights
+    load_css("main_view.css")
+    header = pn.pane.Markdown(
+        """
+# Decoupling between port growth and CO₂
+
+This view asks a simple question: **are countries growing container ports faster than CO₂ emissions?**
+
+- Each dot is a country, sized by baseline CO₂.
+- The diagonal line shows **perfect coupling** (CO₂ grows as fast as port traffic).
+- Points below the line are **decouplers**; points above show **brown growth**.
+        """,
+        sizing_mode="stretch_width",
+        css_classes=["story-header"],
+    )
+
     scatter_section = create_decoupling_scatter(df)
 
-    # Country selector for the timeline
     countries = sorted(df["country"].unique())
     default_country = "Norway" if "Norway" in countries else countries[0]
 
@@ -248,17 +267,23 @@ def create_decoupling_tab(df: pd.DataFrame) -> pn.Column:
             return pn.pane.Markdown(f"No ISO code found for {country_name}.")
         return create_decoupling_timeline(df, iso_codes[0])
 
-    # Bottom section: heading + dropdown above the big graph
     timeline_block = pn.Column(
-        pn.Spacer(height=100),  # padding above
-        pn.pane.Markdown("### Country timeline"),
+        pn.pane.Markdown(
+            "### Port vs CO₂ over time\n"
+            "_Index (first available year = 100)_",
+            sizing_mode="stretch_width",
+        ),
         country_select,
         timeline_view,
-        sizing_mode="stretch_both",
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
     )
 
     return pn.Column(
+        header,
         scatter_section,
         timeline_block,
-        sizing_mode="stretch_both",
+        sizing_mode="stretch_width",
+        css_classes=["story-layout"],
     )
+

@@ -6,6 +6,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 import panel as pn
+from ..utils.load_css import load_css
 
 
 def find_peer_countries(
@@ -100,8 +101,10 @@ def create_peer_comparison(
         table_df.sort_values("co2_per_teu"),
         pagination="local",
         page_size=10,
-        sizing_mode="stretch_both",
+        sizing_mode="stretch_width",
+        height=360,
     )
+
 
     best = table_df.sort_values("co2_per_teu").iloc[0]
     delta_eff = base_row["co2_per_teu"] - best["co2_per_teu"]
@@ -167,9 +170,35 @@ def create_benchmarking_tab(df: pd.DataFrame) -> pn.Column:
             return pn.Column(f"No suitable peers found for {country}.")
         return create_peer_comparison(df, target_iso=iso, peers=peers, year=year)
 
-    return pn.Column(
-        pn.pane.Markdown("## Peer benchmarking\nCompare a country to similar peers."),
-        pn.Row(country_select, year_select),
+    load_css("main_view.css")
+
+    header = pn.pane.Markdown(
+        """
+# Peer benchmarking
+
+Compare a country’s performance to **similar economies** with comparable port activity
+and income levels. Use this to spot realistic best-in-class benchmarks.
+        """,
+        sizing_mode="stretch_width",
+        css_classes=["story-header"],
+    )
+
+    controls = pn.Row(
+        country_select,
+        year_select,
+        sizing_mode="stretch_width",
+    )
+
+    content_card = pn.Column(
+        controls,
         _view,
-        sizing_mode="stretch_both",
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
+    )
+
+    return pn.Column(
+        header,
+        content_card,
+        sizing_mode="stretch_width",
+        css_classes=["story-layout"],
     )

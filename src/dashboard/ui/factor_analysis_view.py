@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import panel as pn
 import hvplot.pandas  # noqa: F401
+from ..utils.load_css import load_css
 
 
 DEFAULT_OUTCOME = "co2_per_teu"
@@ -63,7 +64,11 @@ def create_factor_correlation_matrix(
         height=500,
     )
 
-    return pn.Column(pn.pane.HoloViews(heatmap, sizing_mode="stretch_both"))
+    return pn.Column(
+        pn.pane.HoloViews(heatmap, sizing_mode="stretch_width"),
+        sizing_mode="stretch_width",
+    )
+
 
 
 def create_regression_summary(
@@ -107,16 +112,41 @@ def create_regression_summary(
             [{"variable": "(no predictors with enough data)", "coef": np.nan, "intercept": np.nan, "n_obs": 0}]
         )
 
-    return pn.widgets.Tabulator(result, pagination="local", page_size=15, sizing_mode="stretch_both")
+    return pn.widgets.Tabulator(
+        result,
+        pagination="local",
+        page_size=15,
+        sizing_mode="stretch_width",
+        height=360,
+    )
 
 
 def create_success_factors_tab(df: pd.DataFrame) -> pn.Column:
     """
     Full 'Success Factors' tab: choose outcome & year, see correlation heatmap and simple coefficient table.
     """
-    # Restrict to a single year cross-section for correlations
+    load_css("main_view.css")
+
+    header = pn.pane.Markdown(
+        """
+# Success factors in maritime decarbonisation
+
+This section explores **which structural characteristics** (income level, region, fuel mix, etc.)
+are most strongly associated with **low CO₂ per TEU** or **low CO₂ per capita**.
+
+Use it to identify **patterns** rather than to claim strict causality.
+        """,
+        sizing_mode="stretch_width",
+        css_classes=["story-header"],
+    )
+
     years = sorted(df["year"].unique())
-    year_select = pn.widgets.IntSlider(name="Year", start=min(years), end=max(years), value=max(years))
+    year_select = pn.widgets.IntSlider(
+        name="Year",
+        start=min(years),
+        end=max(years),
+        value=max(years),
+    )
 
     outcome_select = pn.widgets.Select(
         name="Outcome variable",
@@ -140,18 +170,27 @@ def create_success_factors_tab(df: pd.DataFrame) -> pn.Column:
     @pn.depends(year_select.param.value, outcome_select.param.value, predictor_select.param.value)
     def _correlation_view(year, outcome, predictors):
         sub = df[df["year"] == year]
-        return create_factor_correlation_matrix(sub, outcome_var=outcome, predictor_vars=predictors)
+        return create_factor_correlation_matrix(
+            sub,
+            outcome_var=outcome,
+            predictor_vars=list(predictors),
+        )
 
     @pn.depends(year_select.param.value, outcome_select.param.value, predictor_select.param.value)
     def _regression_view(year, outcome, predictors):
         sub = df[df["year"] == year]
-        return create_regression_summary(sub, outcome=outcome, predictors=predictors)
+        return create_regression_summary(
+            sub,
+            outcome=outcome,
+            predictors=list(predictors),
+        )
 
     @pn.depends(year_select.param.value, outcome_select.param.value, predictor_select.param.value)
     def _insights(year, outcome, predictors):
         sub = df[df["year"] == year]
         if outcome not in sub.columns:
             return pn.pane.Markdown("**Key insights**\n\nOutcome not available.")
+
         sub = sub[[outcome] + [p for p in predictors if p in sub.columns]].dropna()
         if sub.empty:
             return pn.pane.Markdown("**Key insights**\n\nNo overlapping data for selected variables.")
@@ -162,24 +201,41 @@ def create_success_factors_tab(df: pd.DataFrame) -> pn.Column:
 
         def _fmt(series, label):
             if series.empty:
-                return f"- No strong {label} correlations.\n"
-            return "".join([f"- {idx}: {val:.2f}\n" for idx, val in series.items()])
+                return f"- No clear {label} correlations."
+            lines = []
+            for name, val in series.items():
+                lines.append(f"- **{name}**: corr = {val:.2f}")
+            return "\n".join(lines)
 
         text = (
             "### Key insights\n\n"
             f"**Year:** {year}\n\n"
             f"Strong positive correlations with {outcome}:\n"
-            f"{_fmt(top_pos, 'positive')}\n"
+            f"{_fmt(top_pos, 'positive')}\n\n"
             f"Strong negative correlations with {outcome}:\n"
             f"{_fmt(top_neg, 'negative')}"
         )
         return pn.pane.Markdown(text)
 
-    return pn.Column(
-        pn.pane.Markdown("## Success factors\nWhich structural variables correlate with lower emissions?"),
-        pn.Row(year_select, outcome_select, predictor_select),
-        pn.Row(_correlation_view, _regression_view),
-        _insights,
-        sizing_mode="stretch_both",
+    controls = pn.Row(
+        year_select,
+        outcome_select,
+        predictor_select,
+        sizing_mode="stretch_width",
+    )
 
+
+    content_card = pn.Column(
+        controls,
+        pn.Row(_correlation_view, _regression_view, sizing_mode="stretch_width"),
+        _insights,
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
+    )
+
+    return pn.Column(
+        header,
+        content_card,
+        sizing_mode="stretch_width",
+        css_classes=["story-layout"],
     )

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import panel as pn
 import hvplot.pandas  # noqa: F401
+from ..utils.load_css import load_css
 
 
 def create_sectoral_breakdown(
@@ -70,7 +71,11 @@ def create_sectoral_breakdown(
     # Break global axis linking and clamp to 2000..x_max
     area = area.redim.range(year=(2000, x_max)).opts(shared_axes=False)
 
-    return pn.Column(pn.pane.HoloViews(area, sizing_mode="stretch_both"))
+    return pn.Column(
+        pn.pane.HoloViews(area, sizing_mode="stretch_width"),
+        sizing_mode="stretch_width",
+    )
+
 
 
 def create_maritime_share_plot(df: pd.DataFrame) -> pn.Column:
@@ -103,56 +108,74 @@ def create_maritime_share_plot(df: pd.DataFrame) -> pn.Column:
         min_height=400,
     )
 
-    return pn.Column(
-        pn.pane.Markdown(
-            "## Maritime CO₂ share (OECD)\n"
-            f"How much of national CO₂ comes from maritime transport in {latest_year}?"
-        ),
-        pn.pane.HoloViews(scatter, sizing_mode="stretch_both"),
-        sizing_mode="stretch_both",
+    header = pn.pane.Markdown(
+        "### Maritime CO₂ share (OECD)\n"
+        f"How much of national CO₂ comes from maritime transport in {latest_year}?"
     )
+
+    return pn.Column(
+        header,
+        pn.pane.HoloViews(scatter, sizing_mode="stretch_width"),
+        sizing_mode="stretch_width",
+    )
+
 
 
 def create_sectoral_tab(df: pd.DataFrame) -> pn.Column:
     """
-    Full 'Sectoral Breakdown' tab: tier selector + normalized toggle + OECD maritime scatter.
-    Uses pn.bind instead of a depends-decorated function to avoid any weird recursion.
+    Tab: Sectoral breakdown.
     """
-    tier_options = sorted(df["maritime_tier"].dropna().unique())
-    default_tier = tier_options[0] if tier_options else None
+    load_css("main_view.css")
 
+    maritime_tiers = sorted(df["maritime_tier"].dropna().unique())
     tier_select = pn.widgets.Select(
         name="Maritime tier",
-        options=tier_options,
-        value=default_tier,
-        width=200,
+        options=maritime_tiers,
+        value=maritime_tiers[0],
     )
 
     normalize_toggle = pn.widgets.Checkbox(
-        name="Show as % of total (normalized)",
+        name="Show as % of total (share)",
         value=False,
     )
 
-    # This binding returns a *new* Column whenever the widgets change
     sector_view = pn.bind(
-        lambda tier, norm: create_sectoral_breakdown(
-            df, maritime_tier=tier, normalize=norm
-        )
-        if tier is not None
-        else pn.Column("No tier selected."),
-        tier_select,
-        normalize_toggle,
+        create_sectoral_breakdown,
+        df=df,
+        maritime_tier=tier_select,
+        normalize=normalize_toggle,
     )
 
     maritime_share_section = create_maritime_share_plot(df)
 
-    return pn.Column(
-        pn.pane.Markdown(
-            "## Sectoral breakdown\n"
-            "Which CO₂ sources dominate in different maritime tiers?"
-        ),
-        pn.Row(tier_select, normalize_toggle),
+    header = pn.pane.Markdown(
+        """
+# Sectoral breakdown
+
+Which **CO₂ sources** dominate in different maritime tiers?
+Use this view to see whether coal, oil, gas or cement are driving emissions – and where the biggest reduction opportunities lie.
+        """,
+        sizing_mode="stretch_width",
+        css_classes=["story-header"],
+    )
+
+    controls = pn.Row(
+        tier_select,
+        normalize_toggle,
+        sizing_mode="stretch_width",
+    )
+
+    content_card = pn.Column(
+        controls,
         sector_view,
         maritime_share_section,
-        sizing_mode="stretch_both",
+        sizing_mode="stretch_width",
+        css_classes=["story-step-card"],
+    )
+
+    return pn.Column(
+        header,
+        content_card,
+        sizing_mode="stretch_width",
+        css_classes=["story-layout"],
     )

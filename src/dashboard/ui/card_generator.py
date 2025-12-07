@@ -30,6 +30,7 @@ def _load_owid_co2_for_total() -> pd.DataFrame:
     df["year"] = df["year"].astype(int)
     return df
 
+
 @lru_cache()
 def _load_owid_co2_for_intensity() -> pd.DataFrame:
     df = pd.read_csv(
@@ -49,47 +50,93 @@ def _load_owid_co2_for_intensity() -> pd.DataFrame:
     return df
 
 
-
-
 def create_header():
     return pn.pane.Markdown(
         """
 # How do CO₂ emissions differ between highly maritime and low-maritime economies?
 
-We analyse two groups of countries based on their role in the global maritime system:
+With global CO₂ emissions still rising, we need to understand **what is driving that increase**.  
+In this project we zoom in on **maritime economies** – countries whose growth is tightly connected to seaborne trade – and ask:
 
-- **Top 10 maritime economies** — large ports, strong shipping sectors and high trade volumes.
-- **Bottom 10 coastal economies** — countries with significantly lower maritime activity and throughput.
+> **How strongly are national CO₂ emissions linked to container port activity, and is that relationship changing over time?**
 
-Using the OWID CO₂ dataset, this dashboard examines how these two groups differ in:
+Using the OWID CO₂ dataset together with container port traffic data, the dashboard walks through:
 
-- **Total CO₂ emissions** and their evolution since 2000.  
-- **Emission intensity**, measured per GDP and per capita.  
-- **Top/Bottom ratios**, showing whether maritime-heavy economies are diverging or converging over time.
+- **Total CO₂ emissions** and how they evolve for Top-10 maritime vs Bottom-10 coastal economies.  
+- **Emission intensity** (per capita, per 100 000 people, and per unit GDP).  
+- **Emissions vs container port traffic**, both as time series and as statistical correlations.  
+- **Per-country stories**, where you can zoom in on individual economies.
 
-_This provides a data-driven foundation for linking maritime activity with national CO₂ patterns._
+Throughout the overview we define:
+
+- **Top-10 maritime economies** as the 10 countries with the highest average container port traffic (TEU) between 2000 and the latest year in our dataset.  
+- **Bottom-10 coastal economies** as 10 coastal countries with non-zero port traffic near the lower end of the same distribution.  
+
+These are **data-driven groups computed from our dataset**, not an official OECD or IMO ranking, and they are used consistently in all overview graphs and the maritime detail sections.
         """,
         sizing_mode="stretch_width",
         css_classes=["story-header"],
     )
 
 
+
 def create_key_messages():
     return pn.pane.HTML(
         """
 <div class="key-messages">
+
   <div class="key-message-card">
-    CO₂ emissions in top maritime economies have grown moderately since 2000,
-    but remain far higher than in bottom-tier economies.
+    <h3>Why this dashboard?</h3>
+    <p>
+      Global CO₂ keeps increasing, but countries do not contribute equally.
+      Here we compare <strong>Top-10 maritime economies</strong> with a
+      <strong>Bottom-10 coastal group</strong> to see how strongly
+      emissions are tied to container port activity and how this link evolves over time.
+    </p>
   </div>
+
   <div class="key-message-card">
-    Emission intensity (per GDP or per capita) shows different patterns across groups,
-    suggesting structural economic differences.
+    <h3>1. Total CO₂ over time – setting the stage</h3>
+    <p>
+      The first graphs show absolute and indexed <strong>total CO₂</strong> for both groups.
+      Top-10 maritime economies dominate global emissions in level terms, while the
+      Bottom-10 group shows much faster <strong>relative growth</strong>, especially after 1950.
+      This frames the basic scale and dynamics of the problem before we look at efficiency
+      and the link to port traffic.
+    </p>
   </div>
+
   <div class="key-message-card">
-    Maritime activity correlates with both CO₂ and container throughput,
-    especially for high-volume trade nations.
+    <h3>2. Emission intensity – how carbon-heavy is growth?</h3>
+    <p>
+      We then move from totals to <strong>intensity</strong>:
+      emissions per person, per 100&nbsp;000 people, or per unit of GDP.
+      This reveals whether economies are becoming more
+      <strong>carbon-efficient</strong> over time, and whether maritime leaders are
+      converging towards cleaner growth compared to late-industrialising coastal states.
+    </p>
   </div>
+
+  <div class="key-message-card">
+    <h3>3. Top/Bottom ratio – summarising the gap</h3>
+    <p>
+      A single ratio traces how many times higher Top-10 emissions are than those of
+      the Bottom-10 group. It shows the huge historical imbalance and how the gap
+      narrows as coastal latecomers industrialise, preparing the ground for questions
+      about fairness and responsibility in maritime decarbonisation.
+    </p>
+  </div>
+
+  <div class="key-message-card">
+    <h3>4. Forecasts – where might we be heading?</h3>
+    <p>
+      Simple time-series models project short-term futures for the maritime groups.
+      Comparing naive and linear-trend forecasts highlights both the momentum in
+      emissions and the uncertainty involved, setting up the discussion of how
+      strongly future CO₂ paths depend on shipping and trade policy choices.
+    </p>
+  </div>
+
 </div>
         """,
         sizing_mode="stretch_width",
@@ -154,14 +201,29 @@ def create_section_total(df: pd.DataFrame):
         secondary_metric=secondary_metric_select,
     )
 
+    intro = pn.pane.Markdown(
+        """
+### 1. Total CO₂ over time
+
+The first step is to look at **total CO₂ emissions** for our two reference groups
+(Top-10 maritime and Bottom-10 coastal) and any extra countries you add.
+
+- The **top panel** shows emissions in absolute terms. Here you can see how
+  leading maritime economies dominate global CO₂, while low-emitting coastal
+  countries contribute only a small share.  
+- The **bottom panel** uses an indexed scale (first non-zero year = 1), which
+  makes it easier to compare **relative growth**. In this view the Bottom-10 line
+  often climbs much faster, highlighting that late-industrialising coastal
+  economies are now among the fastest-growing emitters.  
+- This card sets the overall **scale and trajectory** of emissions before we
+  move on to ask how carbon-intensive that growth is and how it connects to
+  maritime trade.
+        """,
+        sizing_mode="stretch_width",
+    )
+
     return pn.Column(
-        pn.pane.Markdown(
-            "### 1. Total CO₂ over time\n"
-            "_Top: compare **total CO₂** for groups and countries. Optionally add "
-            "cement or coal CO₂ on the right-hand y-axis._  \n"
-            "_Bottom: indexed view (first non-zero = 1) for the **same variables** "
-            "and selections._"
-        ),
+        intro,
         pn.Row(series_selector, secondary_metric_select),
         total_dual_axis_plot,
         pn.pane.Markdown("_Indexed growth (first non-zero = 1)_"),
@@ -173,7 +235,6 @@ def create_section_total(df: pd.DataFrame):
 
 def create_section_intensity(df: pd.DataFrame):
     co2_int = _load_owid_co2_for_intensity()
-
 
     min_year = int(df["year"].min())
     max_year = int(df["year"].max())
@@ -220,14 +281,21 @@ def create_section_intensity(df: pd.DataFrame):
         """
 ### 2. Emission intensity
 
-Top panel: emission intensity over time (choose groups/countries and metric above).  
-Bottom panel: indexed intensity (first non-zero year = 1) so you can compare **relative growth**.
+Here we switch from total tonnes to **emission intensity** – how much CO₂ is
+emitted per person, per 100 000 people, or per unit of GDP.
 
-**Reflection – emission intensity**
-
-- CO₂ per capita shows that **Top-10 maritime economies** have long had higher emissions per person, but many now plateau or decline, while **Bottom-10 economies** rise as they industrialise and connect to seaborne trade.  
-- CO₂ per unit of GDP highlights **structural efficiency**: some groups emit more for each unit of economic output, indicating more carbon-intensive energy or transport systems.  
-- The indexed intensity view helps reveal **convergence or divergence** in carbon efficiency over time, beyond simple level comparisons.
+- The **top panel** shows the level of intensity. It reveals that
+  **Top-10 maritime economies** have long had much higher CO₂ per capita, but
+  many now **peak and decline**, while **Bottom-10 economies** rise as they
+  industrialise and connect to seaborne trade.  
+- CO₂ per unit of GDP highlights **structural efficiency**: some groups emit
+  more for each unit of economic output, indicating more carbon-intensive
+  energy or transport systems.  
+- The **indexed intensity** view below focuses on **relative change**. A flat
+  or declining line means that a group is becoming more carbon-efficient over
+  time, even if its total emissions are still high. This links directly to our
+  question of whether maritime economies are managing to grow trade without
+  growing emissions as fast.
         """,
         sizing_mode="stretch_width",
     )
@@ -248,7 +316,6 @@ Bottom panel: indexed intensity (first non-zero year = 1) so you can compare **r
     )
 
 
-
 def create_section_ratio(df: pd.DataFrame):
     ratio_plot = make_ratio_plot(df)
 
@@ -256,14 +323,18 @@ def create_section_ratio(df: pd.DataFrame):
         """
 ### 3. Top / Bottom CO₂ ratio
 
-How many times higher are emissions in the Top 10 group compared to the Bottom 10 group?  
-Values above 1 mean Top 10 emits more.
+This card compresses the comparison into a **single time series**:  
+how many times higher are emissions in the Top-10 maritime group than in the
+Bottom-10 coastal group?
 
-**Reflection – Top/Bottom CO₂ ratio**
-
-- In early years the ratio is extremely high because **Bottom-10 emissions are close to zero**, which compresses variation in later decades.  
-- From the mid-20th century onwards the ratio falls and stabilises closer to a **single-digit multiple**, indicating that the gap between high- and low-maritime economies has narrowed substantially.  
-- This single indicator summarises historical imbalance and provides a compact way to discuss **convergence**, while reminding us that modern-day levels remain very unequal.
+- In early years the ratio is extremely high because **Bottom-10 emissions are
+  close to zero**, which makes the Top-10 look infinitely larger.  
+- From the mid-20th century onwards the ratio falls and stabilises around a
+  **single-digit multiple**, showing that the gap between high- and low-maritime
+  economies has narrowed substantially as coastal latecomers industrialise.  
+- This simple indicator summarises the historical imbalance in maritime-linked
+  emissions and prepares the ground for later sections where we ask whether the
+  remaining gap is justified by differences in trade intensity and port activity.
         """,
         sizing_mode="stretch_width",
     )
@@ -276,9 +347,7 @@ Values above 1 mean Top 10 emits more.
     )
 
 
-
 def create_forecast_section(df: pd.DataFrame):
-
     targets = list(FORECAST_SERIES_MAP.keys())
 
     target_select = pn.widgets.Select(
@@ -295,8 +364,9 @@ def create_forecast_section(df: pd.DataFrame):
             f"""
 ### 4. Short-term forecast for {target_label} CO₂  
 
-We fit two simple models to **{target_label}** total CO₂ emissions
-(from 1960 onwards) and forecast the next **3 years**:
+To close the overview we look briefly into the **near future**.  
+We fit two simple models to **{target_label}** total CO₂ emissions (from 1960 onwards)
+and forecast the next **3 years**:
 
 - **Naive model:** extends the last observed value forward.  
 - **Linear trend model:** fits a straight line to recent decades and extrapolates.
@@ -308,9 +378,14 @@ Backtesting on the last 3 observed years gives:
 
 **Reflection – forecasting and uncertainty**
 
-- The **naive model** is conservative: it assumes emissions stay near the latest observed level and can work well when recent fluctuations are mostly noise.  
-- The **linear trend model** extrapolates recent growth; it often predicts stronger increases but is more sensitive to the chosen time window.  
-- Comparing the two highlights that even very simple time-series choices produce different futures, underlining the **uncertainty** in short-term maritime CO₂ projections.
+- The **naive model** is conservative: it assumes emissions stay near the latest
+  observed level and can work well when recent fluctuations are mostly noise.  
+- The **linear trend model** extrapolates recent growth; it often predicts
+  stronger increases but is more sensitive to the chosen time window.  
+- Comparing the two highlights that even very simple time-series choices produce
+  different futures, underlining the **uncertainty** in short-term maritime
+  CO₂ projections and motivating the deeper sector and port-traffic analysis in
+  the rest of the dashboard.
 """,
             sizing_mode="stretch_width",
         )
@@ -325,4 +400,3 @@ Backtesting on the last 3 observed years gives:
         sizing_mode="stretch_width",
         css_classes=["story-step-card"],
     )
-

@@ -40,7 +40,6 @@ class ShippingStoryboardView:
 
         section_total = create_section_total(self.data)
         section_intensity = create_section_intensity(self.data)
-        section_ratio = create_section_ratio(self.data)
         self.forecast_section = create_forecast_section(self.data)
 
         self._layout = pn.Column(
@@ -49,8 +48,7 @@ class ShippingStoryboardView:
             controls_row,
             section_total,
             section_intensity,
-            section_ratio,
-            sizing_mode="stretch_both",
+            sizing_mode="stretch_width",
             css_classes=["story-layout"],
         )
 

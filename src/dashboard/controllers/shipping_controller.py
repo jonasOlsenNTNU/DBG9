@@ -35,8 +35,6 @@ class ShippingDashboardController:
 
         root_layout = self.view.layout
         root_layout.append(maritime_section)
-        root_layout.append(self.view.forecast_section)
-        root_layout.append(trade_forecast_section)
 
         self._layout = root_layout
 
