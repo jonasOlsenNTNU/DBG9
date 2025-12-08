@@ -64,7 +64,7 @@ def create_efficiency_frontier(
     else:
         plot = scatter
 
-    return pn.Column(pn.pane.HoloViews(plot, sizing_mode="stretch_both"))
+    return pn.Column(pn.pane.HoloViews(plot, sizing_mode="stretch_width"))
 
 
 def create_frontier_tab(df: pd.DataFrame) -> pn.Column:

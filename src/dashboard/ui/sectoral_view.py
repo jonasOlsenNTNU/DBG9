@@ -76,7 +76,7 @@ def create_sectoral_breakdown(
 
     area = area.redim.range(year=(2000, x_max)).opts(shared_axes=False)
 
-    return pn.Column(pn.pane.HoloViews(area, sizing_mode="stretch_both"))
+    return pn.Column(pn.pane.HoloViews(area, sizing_mode="stretch_width"))
 
 
 def create_sectoral_tab(df: pd.DataFrame) -> pn.Column:

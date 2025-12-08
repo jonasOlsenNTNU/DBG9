@@ -13,9 +13,13 @@ from src.dashboard.ui.benchmarking_view import create_benchmarking_tab
 from src.dashboard.ui.frontier_view import create_frontier_tab
 from src.dashboard.ui.sectoral_view import create_sectoral_tab
 from src.dashboard.ui.scenario_tool import create_scenario_tab
+from src.dashboard.utils.load_css import load_css
 
 
 pn.extension("tabulator")
+
+# Load CSS files
+load_css("tab_navigation.css")
 
 
 def make_dashboard() -> pn.Tabs:
