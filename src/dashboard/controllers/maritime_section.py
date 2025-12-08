@@ -4,14 +4,13 @@ import numpy as np
 from bokeh.plotting import figure
 from pathlib import Path
 
-from ..ui.plot_generator import TOP_COLOR, BOTTOM_COLOR, FORECAST_MAIN_COLOR
-
+from ..ui.plot_generator import (
+    TOP_COLOR,
+    BOTTOM_COLOR,
+    FORECAST_MAIN_COLOR,
+    ACCENT_PALETTE,
+)
 PORT_COLOR = FORECAST_MAIN_COLOR
-
-
-TOP_COLOR = "#004c6d"
-BOTTOM_COLOR = "#2a9d8f"
-PORT_COLOR = "#e76f51"
 
 ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = ROOT / "data"
