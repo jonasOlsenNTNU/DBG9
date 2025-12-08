@@ -1,4 +1,3 @@
-# src/dashboard/ui/factor_analysis_view.py
 from __future__ import annotations
 
 from typing import List
@@ -31,9 +30,6 @@ def create_factor_correlation_matrix(
         outcome_var: str = DEFAULT_OUTCOME,
         predictor_vars: List[str] | None = None,
 ) -> pn.Column:
-    """
-    Interactive correlation heatmap between one outcome and a set of predictors.
-    """
     if predictor_vars is None:
         predictor_vars = _available_predictors(df, DEFAULT_PREDICTORS)
     else:
@@ -46,27 +42,48 @@ def create_factor_correlation_matrix(
         return pn.Column("No data for selected variables.")
 
     corr = sub.corr()
+
+    label_map = {
+        "co2_per_teu": "CO₂ per TEU",
+        "co2_per_capita": "CO₂ per capita",
+        "energy_per_gdp": "Energy per GDP",
+        "energy_per_capita": "Energy per capita",
+        "coal_share": "Coal share",
+        "oil_share": "Oil share",
+    }
+
     corr_long = (
         corr.reset_index()
         .melt(id_vars="index", var_name="var2", value_name="corr")
         .rename(columns={"index": "var1"})
     )
 
+    corr_long["var1_label"] = corr_long["var1"].map(label_map).fillna(corr_long["var1"])
+    corr_long["var2_label"] = corr_long["var2"].map(label_map).fillna(corr_long["var2"])
+
     heatmap = corr_long.hvplot.heatmap(
-        x="var1",
-        y="var2",
+        x="var1_label",
+        y="var2_label",
         C="corr",
         clim=(-1, 1),
         cmap="RdBu_r",
-        colorbar=True,
-        title="Correlation matrix",
-        width=600,
-        height=500,
+        tools=["hover"],
+        xlabel="",
+        ylabel="",
+        title=f"Correlation with {label_map.get(outcome_var, outcome_var)}",
+        width=700,
+        height=700,
+    ).opts(
+        xrotation=45,
+        yrotation=0,
     )
 
     return pn.Column(
-        pn.pane.HoloViews(heatmap, sizing_mode="stretch_width"),
-        sizing_mode="stretch_width",
+        pn.pane.HoloViews(
+            heatmap,
+            sizing_mode="stretch_width",
+            min_height=380,
+        )
     )
 
 
@@ -77,11 +94,7 @@ def create_regression_summary(
         predictors: List[str],
         controls: List[str] | None = None,
 ) -> pn.widgets.Tabulator:
-    """
-    Simplified regression-like summary:
-    For each predictor, estimate a simple slope d(outcome)/d(predictor) using OLS on that pair.
-    (This is not full panel regression but matches the idea of effect direction and strength.)
-    """
+
     if controls is None:
         controls = []
 
@@ -122,9 +135,6 @@ def create_regression_summary(
 
 
 def create_success_factors_tab(df: pd.DataFrame) -> pn.Column:
-    """
-    Full 'Success Factors' tab: choose outcome & year, see correlation heatmap and simple coefficient table.
-    """
     load_css("main_view.css")
 
     header = pn.pane.Markdown(
@@ -151,10 +161,10 @@ Use it to identify **patterns** rather than to claim strict causality.
     outcome_select = pn.widgets.Select(
         name="Outcome variable",
         options=[
-            "co2_per_teu",      # CO₂ per TEU (efficiency)
-            "co2_per_capita",   # CO₂ per capita
-            "decoupling_index", # Decoupling index (7-year)
-            "co2_cagr_7y",      # CO₂ CAGR 7-year
+            "co2_per_teu",
+            "co2_per_capita",
+            "decoupling_index",
+            "co2_cagr_7y",
         ],
         value="co2_per_teu",
     )

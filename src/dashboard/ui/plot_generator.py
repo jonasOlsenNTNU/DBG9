@@ -5,10 +5,24 @@ import pandas as pd
 import panel as pn
 import hvplot.pandas
 
-TOP_COLOR = "#004c6d"
-BOTTOM_COLOR = "#2a9d8f"
-FORECAST_MAIN_COLOR = "#e76f51"
-FORECAST_NAIVE_COLOR = "#f4a261"
+import hvplot.pandas
+
+ACCENT_PALETTE = {
+    "green": "#7fc97f",
+    "purple": "#beaed4",
+    "orange": "#fdc086",
+    "yellow": "#ffff99",
+    "blue": "#386cb0",
+    "magenta": "#f0027f",
+    "brown": "#bf5b17",
+    "grey": "#666666",
+}
+
+TOP_COLOR = ACCENT_PALETTE["blue"]
+BOTTOM_COLOR = ACCENT_PALETTE["green"]
+
+FORECAST_MAIN_COLOR = ACCENT_PALETTE["magenta"]
+FORECAST_NAIVE_COLOR = ACCENT_PALETTE["orange"]
 
 FORECAST_SERIES_MAP = {
     "Top 10 maritime (avg)": ("co2_top10", "Top 10 total CO₂ (Mt)"),

@@ -6,8 +6,10 @@ import numpy as np
 import pandas as pd
 import panel as pn
 import holoviews as hv
-import hvplot.pandas  # noqa: F401
+import hvplot.pandas
+from .plot_generator import TOP_COLOR, BOTTOM_COLOR
 from ..utils.load_css import load_css
+
 
 pn.extension()
 
@@ -139,13 +141,14 @@ def create_decoupling_scatter(
             x="port_cagr",
             y="co2_cagr",
             color="maritime_tier",
+            cmap="Accent",
             size="baseline_co2",
             hover_cols=["country", "decoupling_index", "baseline_co2"],
             xlabel="Port traffic CAGR (%)",
             ylabel="CO₂ CAGR (%)",
             title="Port vs CO₂ growth (CAGR)",
-            width=1000,   # <–– wider
-            height=450,   # <–– taller
+            width=1000,
+            height=500,
             responsive=False,
         )
 
@@ -184,11 +187,6 @@ def create_decoupling_scatter(
 
 
 def create_decoupling_timeline(df: pd.DataFrame, iso_code: str) -> pn.Column:
-    """
-    Timeline for a single country:
-    - Port traffic and CO₂ indexed to first available year = 100.
-    - X-axis restricted to that country’s actual data range.
-    """
     country_df = df[df["iso_code"] == iso_code].sort_values("year")
     if country_df.empty:
         return pn.Column(f"No data for {iso_code}")
@@ -207,13 +205,13 @@ def create_decoupling_timeline(df: pd.DataFrame, iso_code: str) -> pn.Column:
         co2_index=country_df["co2"] / co2_base * 100.0,
     )
 
-    x_min = int(country_df["year"].min())
     x_max = int(country_df["year"].max())
 
     curves = country_df.hvplot.line(
         x="year",
         y=["port_index", "co2_index"],
-        ylabel="Index (first year = 100)",
+        color=[TOP_COLOR, BOTTOM_COLOR],
+        ylabel="Relative level (first year = 100)",
         xlabel="Year",
         title=f"Port vs CO₂ over time – {country_df['country'].iloc[0]}",
         width=1000,
@@ -228,9 +226,6 @@ def create_decoupling_timeline(df: pd.DataFrame, iso_code: str) -> pn.Column:
 
 
 def create_decoupling_tab(df: pd.DataFrame) -> pn.Column:
-    """
-    Tab 2: Decoupling Explorer.
-    """
     load_css("main_view.css")
     header = pn.pane.Markdown(
         """
@@ -269,7 +264,7 @@ This view asks a simple question: **are countries growing container ports faster
 
     timeline_block = pn.Column(
         pn.pane.Markdown(
-            "### Port vs CO₂ over time\n"
+            "### Port traffic vs CO₂ over time\n"
             "_Index (first available year = 100)_",
             sizing_mode="stretch_width",
         ),

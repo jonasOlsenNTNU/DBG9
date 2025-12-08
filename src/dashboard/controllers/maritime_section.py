@@ -1,8 +1,12 @@
-from pathlib import Path
 import pandas as pd
 import panel as pn
 import numpy as np
 from bokeh.plotting import figure
+from pathlib import Path
+
+from ..ui.plot_generator import TOP_COLOR, BOTTOM_COLOR, FORECAST_MAIN_COLOR
+
+PORT_COLOR = FORECAST_MAIN_COLOR
 
 
 TOP_COLOR = "#004c6d"
